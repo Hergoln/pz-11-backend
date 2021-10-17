@@ -8,4 +8,12 @@ class AgarntGame(Game):
 
     def run(self):
         print("run agarnt")
-        self._event_handler.handleIncomingMessages()
+        
+        while self._isEnd():
+            self._event_handler.handleIncomingMessages()
+            self._event_handler.updateGameState()
+
+    def _isEnd(self):
+        '''Check if game should end.'''
+        return False
+            

@@ -7,8 +7,7 @@ def createGame():
     config = AgarntGameConfig()
     game = AgarntGame(config, communication_handler)
     game.run()
-    input()
 
-print("Welcome")
+print("Welcome in bots battles test!")
 createGame()
 input()
