@@ -1,17 +1,17 @@
 class CommunicationHandler:
-    def __init__(self, websocketHandler):
+    def __init__(self, websocket_handler):
         # TODO assign callback onReceive to websocket
-        self._websocketHandler = websocketHandler
+        self.websocket_handler = websocket_handler
 
-    def onReceive(self, message):
-        self._incomingMessages.append(message)
+    def on_receive(self, message):
+        self._incoming_messages.append(message)
 
-    def pushMessage(self, message):
+    def push_message(self, message):
         print("Communication handler: send message", message)
-        self._websocketHandler.send(message)
+        self.websocket_handler.send(message)
 
-    def onDisconnect(self, message):
+    def on_disconnect(self, message):
         print("Communication handler: on diconnect")
         
-    def onConnect(self, message):
+    def on_connect(self, message):
         print("Communication handler: on connect")

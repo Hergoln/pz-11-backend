@@ -6,13 +6,13 @@ class EventHandler:
         self.__game_logic = game_logic
         self.__communication_handler = communication_handler
 
-    def handleIncomingMessages(self):
+    def handle_incoming_messages(self):
         '''Handles a queue with incoming messages, by passing each message to game logic class'''
         while not self.__incoming_messages.empty():
-            self.__game_logic.applyRules(self.__incoming_messages.get())
+            self.__game_logic.apply_rules(self.__incoming_messages.get())
 
-    def updateGameState(self):
+    def update_game_state(self):
         '''Get actual state of game from GameLogic class instance and pass it to communication handler'''
-        self.__communication_handler.pushMessage(self.self.__game_logic.getState())
+        self.__communication_handler.push_message(self.self.__game_logic.get_state())
 
     

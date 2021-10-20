@@ -2,8 +2,8 @@ from game_engine.game_logic import GameLogic
 
 
 class AgarntGameLogic(GameLogic):
-    def applyRules(self, message):
+    def apply_rules(self, message):
         print("agarnt game logic")
 
-    def getState(self):
+    def get_state(self):
         return ""
