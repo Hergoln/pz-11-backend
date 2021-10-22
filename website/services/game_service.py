@@ -6,7 +6,7 @@ game_bp = Blueprint("game", __name__)
 @game_bp.route('/games/types/')
 def game_types():
     return jsonify({
-        "games_types": [
+        "game_types": [
             {
                 "id": uuid.uuid4(),
                 "name": "Agarnt"
