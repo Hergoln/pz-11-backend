@@ -1,7 +1,5 @@
 import abc
 
-from .event_handler import EventHandler
-
 class Game(metaclass=abc.ABCMeta):
     '''Abstrac class which defines the game.'''
 
@@ -14,10 +12,20 @@ class Game(metaclass=abc.ABCMeta):
         self._game_logic = game_logic
         self._game_config = game_config
         self._communication_handler = communication_handler
-        self._event_handler = EventHandler(self._game_logic, self._communication_handler)
+        self._is_terminated = False
 
     @abc.abstractmethod
-    def run(self):
+    async def run(self):
         ''''Starts a main loop of game. It's user task to create a loop and define their form 
         (for example, should it be a loop with a constant game step or a turn-based game)'''
         pass
+
+    @abc.abstractmethod
+    def _cleanup(self):
+        ''''Cleanup all resources after game closing.'''
+        pass
+    
+    def terminate(self):
+        ''''Terminates main loop game'''
+        self._is_terminated = True
+
