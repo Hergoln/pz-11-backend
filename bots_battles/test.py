@@ -13,7 +13,7 @@
 # input()
 
 import logging
-from networking import GameServer
+from game_engine.networking import GameServer
 
 logging.basicConfig(level=logging.INFO)
 

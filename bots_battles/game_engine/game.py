@@ -22,7 +22,7 @@ class Game(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def _cleanup(self):
-        ''''Cleanup all resources after game closing.'''
+        ''''Cleanup all resources after close the game.'''
         pass
     
     def terminate(self):

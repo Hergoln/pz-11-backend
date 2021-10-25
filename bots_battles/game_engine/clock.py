@@ -1,5 +1,6 @@
 import pygame
 import asyncio
+
 class Clock:
     def __init__(self, time_func=pygame.time.get_ticks):
         self.time_func = time_func

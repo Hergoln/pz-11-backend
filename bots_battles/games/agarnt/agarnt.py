@@ -1,7 +1,5 @@
 import asyncio
 import logging
-import time
-from asyncio.tasks import sleep
 from .agarnt_game_logic import AgarntGameLogic
 from game_engine import Game, Clock
 
@@ -14,16 +12,15 @@ class AgarntGame(Game):
         self.object_counter = AgarntGame.intance_counter
         self.clock = Clock()
 
-        logging.info(f'Create Agarnt game {self.object_counter}')
+        logging.info(f'create Agarnt game {self.object_counter}')
         
 
     async def run(self):
-        print('run agarnt')
-        print(__name__)
         while not self._is_end():
-            self._communication_handler.handle_incomming_messages(lambda msg: self._game_logic(msg))
+            self._communication_handler.handle_incomming_messages(lambda msg: self._game_logic.process_input(msg))
 
-            await self.clock.tick(30)
+            await self.clock.tick(self._game_config.game_speed)
+
         self._cleanup()
 
     def _is_end(self):
