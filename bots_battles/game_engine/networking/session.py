@@ -3,7 +3,6 @@ import logging
 
 from .communication_handler import CommunicationHandler
 from .game_client import GameClient
-from games.agarnt import AgarntGame, AgarntGameConfig
 
 
 class Session:
@@ -13,10 +12,11 @@ class Session:
     shared between all players.
     '''
 
-    def __init__(self, session_id):
+    def __init__(self, game_factory, session_id):
         self.__session_id = session_id
         self.__players = []
         self.__game = None
+        self.__game_factory = game_factory
         self.__communication_handler = CommunicationHandler()
 
         logging.info("Session created!")
@@ -26,28 +26,29 @@ class Session:
         Parameters:
         websocket - player websocket
         '''
+
         game_client = GameClient(websocket, self.__communication_handler)
         self.__players.append(game_client)
 
         try:
             await game_client.handle_messages()
         except:
-            logging.info('Client disconnected')
+            self.__players.remove(game_client)
+            logging.info('client disconnected')
 
-    async def create_game(self, game_type: str):
+    async def create_game(self, game_type, game_config):
         '''Async method to create game instance.
         If game exists in session instance, runtime execption will be raised
         Parameters:
         game_type - define game type to be created
+        game_config - game config
         '''
+
         if self.__game != None:
             raise RuntimeError('Game in this session already exists!')
 
-        if game_type == 'agarnt':
-            self.__game = AgarntGame(AgarntGameConfig(), self.__communication_handler)
-        else:
-            raise RuntimeError('Not supported game!')
-        logging.info(f"Create new game, game type {game_type}")
+        self.__game = self.__game_factory.create_game(game_type, self.__communication_handler, game_config)
+        logging.info(f"create new game in session {self.session_id}, game type {game_type}")
         
         await asyncio.create_task(self.__game.run())
 
@@ -55,10 +56,11 @@ class Session:
         '''Async method to terminate existing game.
         If game not exists in session instance, runtime execption will be raised
         '''
-        if self.__game == None:
-            raise RuntimeError('Game in this session do not exists!')
 
-        logging.info('Game terminated')
+        if self.__game == None:
+            raise RuntimeError(f'Game in this session (id={self.session_id}) do not exists!')
+
+        logging.info(f'game in session {self.session_id} terminated')
         self.__game.terminate()
         self.__game = None
 

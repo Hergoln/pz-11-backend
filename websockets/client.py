@@ -12,6 +12,7 @@ async def send(websocket):
     while True: 
         await websocket.send(input('Type command which will be sent to server!'))
         print('Message sent!')
+        await asyncio.sleep(0)
 
 async def client(uri):
     async with connect(uri) as websocket:
@@ -21,13 +22,14 @@ async def client(uri):
         for task in pending:
            task.cancel()
         await asyncio.Future() 
+    print('Finished')
 
 async def oneshot_connection(uri):
     async with connect(uri) as websocket:
         await websocket.close()
 
 
-loop = asyncio.get_event_loop()
+loop = asyncio.new_event_loop()
 
 while True:
     cmd = input('Command, [create_game, join, terminate]\n') 

@@ -4,12 +4,12 @@ from .agarnt_game_logic import AgarntGameLogic
 from game_engine import Game, Clock
 
 class AgarntGame(Game):
-    intance_counter = 0
+    instance_counter = 0
 
     def __init__(self, game_config, communication_handler):
         super().__init__(AgarntGameLogic(), game_config, communication_handler)
-        AgarntGame.intance_counter = AgarntGame.intance_counter + 1
-        self.object_counter = AgarntGame.intance_counter
+        AgarntGame.instance_counter = AgarntGame.instance_counter + 1
+        self.object_counter = AgarntGame.instance_counter
         self.clock = Clock()
 
         logging.info(f'create Agarnt game {self.object_counter}')
