@@ -118,3 +118,8 @@ class GameServer:
             await self.__sessions[session_id].terminate_game()
         else:
             logging.error(f'Session with id {session_id} does not exist!')
+
+    @property
+    def game_factory(self):
+        '''Returns a game factory instance.'''
+        return self.__game_factory

@@ -22,7 +22,7 @@ class GameFactory:
         Returns names of all available games.
         '''
 
-        return self.__games.keys
+        return self.__games.keys()
 
     def create_game(self, game_type, communication_handler, config = None):
         '''

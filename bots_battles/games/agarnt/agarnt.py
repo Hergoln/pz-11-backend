@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from .agarnt_game_logic import AgarntGameLogic
-from game_engine import Game, Clock
+from bots_battles.game_engine import Game, Clock
 
 class AgarntGame(Game):
     instance_counter = 0

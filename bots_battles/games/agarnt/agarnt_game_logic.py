@@ -1,6 +1,5 @@
 import logging
-from game_engine.game_logic import GameLogic
-
+from bots_battles.game_engine.game_logic import GameLogic
 
 class AgarntGameLogic(GameLogic):
     def process_input(self, message):
