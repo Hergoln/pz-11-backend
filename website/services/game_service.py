@@ -22,7 +22,7 @@ def game_types():
         ]
     })
 
-@game_bp.route('/games/', methods=['POST', 'GET'])
+@game_bp.route('/games/', methods=['POST', 'GET', 'OPTIONS'])
 def games():
     if request.method == 'POST':
         content = request.json
