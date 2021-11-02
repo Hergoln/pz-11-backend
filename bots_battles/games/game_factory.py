@@ -38,7 +38,7 @@ class GameFactory:
         Returns created game instance.
         '''
 
-        if game_type in self.__games:
+        if game_type not in self.__games:
             raise RuntimeError("game_type is not recognized")
 
         config = config if config != None else self.__games[game_type][1]
