@@ -1,20 +1,22 @@
 import asyncio
-from websockets import connect
+from websockets.legacy.client import WebSocketClientProtocol, connect
+from websockets.typing import Data
 from urllib.request import urlopen, Request
 
 
-async def receive(websocket):
+
+async def receive(websocket: WebSocketClientProtocol):
     while True:
-        message = await websocket.recv()
+        message: Data =await websocket.recv()
         print('Message from server', message)
 
-async def send(websocket):
+async def send(websocket: WebSocketClientProtocol):
     while True: 
         await websocket.send(input('Type command which will be sent to server!'))
         print('Message sent!')
         await asyncio.sleep(0)
 
-async def client(uri):
+async def client(uri: str):
     async with connect(uri) as websocket:
         consumer_task = asyncio.ensure_future(receive(websocket))
         producer_task = asyncio.ensure_future(send(websocket))
@@ -24,7 +26,7 @@ async def client(uri):
         await asyncio.Future() 
     print('Finished')
 
-async def oneshot_connection(uri):
+async def oneshot_connection(uri: str):
     async with connect(uri) as websocket:
         await websocket.close()
 

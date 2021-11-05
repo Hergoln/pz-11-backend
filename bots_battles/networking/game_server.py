@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 import asyncio
-import websockets
+from typing import Dict, Optional
+from websockets.legacy.client import WebSocketClientProtocol
+from websockets.legacy.server import serve
 import logging
 from urllib.parse import urlparse, parse_qs 
 from secrets import token_hex
-
+from ..game_factory import GameFactory
+from ..game_engine import GameConfig
 from .session import Session
 
 class GameServer:
@@ -11,7 +16,7 @@ class GameServer:
     Class which defines main game server. Handles all connections and process them.
     '''
 
-    def __init__(self, game_factory, url, port):
+    def __init__(self, game_factory: GameFactory, url: str, port: int):
         '''
         Constructor of GameServer class/
         
@@ -23,7 +28,7 @@ class GameServer:
         
         self.__url = url
         self.__port = port
-        self.__sessions = dict()
+        self.__sessions: Dict[str, Session] = dict()
         self.__game_factory = game_factory
         self.__loop = asyncio.get_event_loop()
 
@@ -31,12 +36,12 @@ class GameServer:
         '''Main function of server, starts a endless loop, listening on url.'''
 
         logging.info(f'listening started')
-        service = websockets.serve(self.__handle_new_connection, self.__url, self.__port)
+        service = serve(self.__handle_new_connection, self.__url, self.__port)
         self.__loop.run_until_complete(service)
         self.__loop.run_forever()
         logging.info(f'listening finished')
 
-    async def __handle_new_connection(self, websocket, path):
+    async def __handle_new_connection(self, websocket: WebSocketClientProtocol, path: str):
         '''Async method to handle and propagate to proper methods connections.'''
 
         logging.info(f'new connection with {websocket.id}, with path = {path}')
@@ -77,7 +82,7 @@ class GameServer:
         return session.session_id
 
 
-    async def create_new_game(self, session_id, game_type, game_config = None):
+    async def create_new_game(self, session_id: str, game_type: str, game_config: Optional[GameConfig] = None):
         '''
         Async method to create game in existing session with given id.
         If game_type will be not defined, runtime error will be raised.
@@ -105,7 +110,7 @@ class GameServer:
         else:
             logging.error(f'Session with id {session_id} does not exist!')
 
-    async def terminate_game(self, session_id):
+    async def terminate_game(self, session_id: str):
         '''
         Async method to terminate game.
         If game will be not running, runtime error will be raised.

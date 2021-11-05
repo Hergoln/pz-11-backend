@@ -1,21 +1,20 @@
-from .agarnt import AgarntGame, AgarntGameConfig
+from __future__ import annotations
+from typing import Dict, Tuple, Type
+#from ..networking import CommunicationHandler
+#from ..game_engine import Game, GameConfig
+
 
 class GameFactory:
     '''
     Game factory class.
     Can create all available games and return list with names of that games.
     '''
-    def __init__(self):
+    def __init__(self, games_dict: Dict[str, Tuple[Type, Type]]):
         '''
         Constructor of GameFactory class.
         To self.__games should be added all available games.
         '''
-
-        self.__games = {
-            'agarnt': (AgarntGame, AgarntGameConfig),
-            'placeholder #1': None,
-            'placeholder #2': None
-            }
+        self.__games = games_dict
 
     def get_all_games(self):
         '''
@@ -24,7 +23,7 @@ class GameFactory:
 
         return self.__games.keys()
 
-    def create_game(self, game_type, communication_handler, config = None):
+    def create_game(self, game_type: str, communication_handler, config = None):
         '''
         Creates and returns created game instance.
         If game_type is not recognized, runtime error will be raised.
@@ -41,5 +40,5 @@ class GameFactory:
         if game_type not in self.__games:
             raise RuntimeError("game_type is not recognized")
 
-        config = config if config != None else self.__games[game_type][1]
+        config = config if config != None else self.__games[game_type][1]()
         return self.__games[game_type][0](config, communication_handler)

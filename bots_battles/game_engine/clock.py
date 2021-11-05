@@ -1,12 +1,13 @@
+from typing import Callable
 import pygame
 import asyncio
 
 class Clock:
-    def __init__(self, time_func=pygame.time.get_ticks):
+    def __init__(self, time_func: Callable[[], int] =pygame.time.get_ticks):
         self.time_func = time_func
         self.last_tick = time_func() or 0
  
-    async def tick(self, fps=0):
+    async def tick(self, fps: int =0):
         if 0 >= fps:
             return
  

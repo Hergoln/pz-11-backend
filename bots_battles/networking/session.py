@@ -1,8 +1,14 @@
+from __future__ import annotations
+
 import asyncio
 import logging
 
-from .communication_handler import CommunicationHandler
+from websockets.legacy.client import WebSocketClientProtocol
+
 from .game_client import GameClient
+from ..game_engine import CommunicationHandler
+from ..game_factory import GameFactory
+from .. import Game, GameConfig
 
 
 class Session:
@@ -12,16 +18,16 @@ class Session:
     shared between all players.
     '''
 
-    def __init__(self, game_factory, session_id):
+    def __init__(self, game_factory: GameFactory, session_id: str):
         self.__session_id = session_id
         self.__players = []
-        self.__game = None
+        self.__game: Game = None
         self.__game_factory = game_factory
         self.__communication_handler = CommunicationHandler()
 
         logging.info("Session created!")
 
-    async def create_player(self, websocket):
+    async def create_player(self, websocket: WebSocketClientProtocol):
         '''Async method to create player and add them to game
         Parameters:
         websocket - player websocket
@@ -36,7 +42,7 @@ class Session:
             self.__players.remove(game_client)
             logging.info('client disconnected')
 
-    async def create_game(self, game_type, game_config):
+    async def create_game(self, game_type: str, game_config: GameConfig):
         '''Async method to create game instance.
         If game exists in session instance, runtime execption will be raised
         Parameters:
