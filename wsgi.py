@@ -25,11 +25,7 @@ if __name__ == "__main__":
         ws_port = os.environ.get("WS_PORT", 2137)
         game_server = GameServer(game_factory, "0.0.0.0", ws_port)
         game_server.listen()
-    #     
-    #     
-        
-
-
+    
 
     game_thread = Thread(target=game_server_init, args=[game_factory])
     game_thread.start()
