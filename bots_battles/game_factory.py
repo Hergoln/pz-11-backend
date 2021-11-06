@@ -1,7 +1,6 @@
 from __future__ import annotations
-from typing import Dict, Tuple, Type
-#from ..networking import CommunicationHandler
-#from ..game_engine import Game, GameConfig
+from typing import Dict, Optional, Tuple, Type
+from .game_engine import Game, GameConfig, CommunicationHandler
 
 
 class GameFactory:
@@ -9,7 +8,7 @@ class GameFactory:
     Game factory class.
     Can create all available games and return list with names of that games.
     '''
-    def __init__(self, games_dict: Dict[str, Tuple[Type, Type]]):
+    def __init__(self, games_dict: Dict[str, Tuple[Type[Game], Type[GameConfig]]]):
         '''
         Constructor of GameFactory class.
         To self.__games should be added all available games.
@@ -23,7 +22,7 @@ class GameFactory:
 
         return self.__games.keys()
 
-    def create_game(self, game_type: str, communication_handler, config = None):
+    def create_game(self, game_type: str, communication_handler: CommunicationHandler, config: Optional[GameConfig] =None):
         '''
         Creates and returns created game instance.
         If game_type is not recognized, runtime error will be raised.

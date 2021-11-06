@@ -3,13 +3,19 @@ from flask import request, jsonify, Blueprint
 import uuid
 from flask.wrappers import Response
 from bots_battles import GameFactory
-from settings import GAMES
-game_factory = GameFactory(GAMES) # think about it
+import sys
+
+# this is a pointer to the module object instance itself.
+this = sys.modules[__name__]
+this.game_factory =None
+
+def init_factory(factory: GameFactory): this.game_factory = factory
+
 game_bp = Blueprint("game", __name__)
 
 @game_bp.route('/games/types/')
 def game_types() -> Response:
-    return jsonify({ 'game_types': list(game_factory.get_all_games()) })
+    return jsonify({ 'game_types': list(this.game_factory.get_all_games()) })
 
 @game_bp.route('/games/', methods=['POST', 'GET'])
 def games() -> Union[str, Response]:

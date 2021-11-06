@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from asyncio.events import AbstractEventLoop
 from typing import Dict, Optional
 from websockets.legacy.client import WebSocketClientProtocol
 from websockets.legacy.server import serve
@@ -36,8 +37,9 @@ class GameServer:
         '''Main function of server, starts a endless loop, listening on url.'''
 
         logging.info(f'listening started')
-        service = serve(self.__handle_new_connection, self.__url, self.__port)
-        self.__loop.run_until_complete(service)
+        self.__service = serve(self.__handle_new_connection, self.__url, self.__port)
+        
+        self.__loop.run_until_complete(self.__service)
         self.__loop.run_forever()
         logging.info(f'listening finished')
 
