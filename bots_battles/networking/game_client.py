@@ -20,5 +20,10 @@ class GameClient:
 
         async for msg in self.__websocket:
             self.__communication_handler.on_receive(msg)
+    
+    async def terminate(self):
+        await self.__websocket.close_connection()
+        await self.__websocket.close()
+        
 
 

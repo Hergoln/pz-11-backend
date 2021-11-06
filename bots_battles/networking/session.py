@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from typing import List
 
 from websockets.legacy.client import WebSocketClientProtocol
 
@@ -20,7 +21,7 @@ class Session:
 
     def __init__(self, game_factory: GameFactory, session_id: str):
         self.__session_id = session_id
-        self.__players = []
+        self.__players: List[GameClient] = []
         self.__game: Game = None
         self.__game_factory = game_factory
         self.__communication_handler = CommunicationHandler()
@@ -70,6 +71,10 @@ class Session:
         self.__game.terminate()
         self.__game = None
 
+    async def clear(self):
+        '''Clears connections with clients'''
+        [await player.terminate() for player in self.__players]
+    
     @property
     def session_id(self):
         '''Returns a unique session id.'''

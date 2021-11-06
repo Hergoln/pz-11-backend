@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import asyncio
 from asyncio.events import AbstractEventLoop
+import time
 from typing import Dict, Optional
 from websockets.legacy.client import WebSocketClientProtocol
 from websockets.legacy.server import serve
 import logging
-from urllib.parse import urlparse, parse_qs 
+from urllib.parse import urlparse, parse_qs, unquote_plus 
 from secrets import token_hex
 from ..game_factory import GameFactory
 from ..game_engine import GameConfig
@@ -39,7 +40,7 @@ class GameServer:
         logging.info(f'listening started')
         self.__service = serve(self.__handle_new_connection, self.__url, self.__port)
         
-        self.__loop.run_until_complete(self.__service)
+        self.__listen_task = self.__loop.run_until_complete(self.__service)
         self.__loop.run_forever()
         logging.info(f'listening finished')
 
@@ -47,11 +48,16 @@ class GameServer:
         '''Async method to handle and propagate to proper methods connections.'''
 
         logging.info(f'new connection with {websocket.id}, with path = {path}')
-        query = parse_qs(urlparse(path).query)
-
+        query = parse_qs(urlparse(unquote_plus(path)).query)
+        logging.info(f"PARSED QUERY: {query}")
         if '/create_game' in path:
             session_id = await self.create_new_session()
-            await self.create_new_game(session_id, 'agarnt')
+            name = query['name'][0]
+            _type = query['type'][0]
+            print(name, _type)
+            await websocket.send(session_id)
+            await self.create_new_game(session_id, _type)
+
         elif '/join_to_game' in path:
             await self.join_to_game(websocket, query['session_id'][0])
         elif '/terminate_game' in path:
@@ -130,3 +136,20 @@ class GameServer:
     def game_factory(self):
         '''Returns a game factory instance.'''
         return self.__game_factory
+
+    def terminate(self):
+        async def wrapper():
+            [await session.clear() for session in self.__sessions.values()]
+            self.__sessions.clear()
+
+        asyncio.run(wrapper())
+        self.__service.ws_server.close()
+        print(self.__service.ws_server.close_task)
+        
+        async def stop_listen_task():
+            self.__listen_task.close()
+        self.__loop.run_until_complete(asyncio.wait([stop_listen_task()]))
+
+        self.__loop.stop()
+        
+        self.__loop.close()
