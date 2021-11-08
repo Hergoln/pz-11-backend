@@ -32,11 +32,11 @@ class GameServer:
         self.__port = port
         self.__sessions: Dict[str, Session] = dict()
         self.__game_factory = game_factory
-        self.__loop = asyncio.get_event_loop()
 
-    def listen(self):
+    def listen(self, event_loop):
         '''Main function of server, starts a endless loop, listening on url.'''
 
+        self.__loop = event_loop
         logging.info(f'listening started')
         self.__service = serve(self.__handle_new_connection, self.__url, self.__port)
         
@@ -89,7 +89,6 @@ class GameServer:
 
         return session.session_id
 
-
     async def create_new_game(self, session_id: str, game_type: str, game_config: Optional[GameConfig] = None):
         '''
         Async method to create game in existing session with given id.
@@ -132,10 +131,11 @@ class GameServer:
         else:
             logging.error(f'Session with id {session_id} does not exist!')
 
-    @property
-    def game_factory(self):
-        '''Returns a game factory instance.'''
-        return self.__game_factory
+    def create_new_session_sync(self):
+        return asyncio.run_coroutine_threadsafe(self.create_new_session(), self.__loop).result()
+
+    def create_new_game_sync(self, session_id: str, game_type: str, game_config: Optional[GameConfig] = None):
+        asyncio.run_coroutine_threadsafe(self.create_new_game(session_id, game_type, game_config), self.__loop)
 
     def terminate(self):
         async def wrapper():
@@ -153,3 +153,8 @@ class GameServer:
         self.__loop.stop()
         
         self.__loop.close()
+
+    @property
+    def game_factory(self):
+        '''Returns a game factory instance.'''
+        return self.__game_factory

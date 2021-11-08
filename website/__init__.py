@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_cors import CORS
-from bots_battles import GameFactory
+from bots_battles import GameFactory, GameServer
 
-def create_app(game_factory: GameFactory) -> Flask:
+def create_app(game_server: GameServer, game_factory: GameFactory) -> Flask:
     app = Flask(__name__)
 
     CORS(app, resources={
@@ -15,7 +15,7 @@ def create_app(game_factory: GameFactory) -> Flask:
         
         from .services import basic_bp, game_bp
         import website.services as sv
-        sv.init_factory(game_factory)
+        sv.init_game_server(game_server)
         
         app.register_blueprint(basic_bp)
         app.register_blueprint(game_bp)
