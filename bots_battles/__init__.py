@@ -1,2 +1,5 @@
-from bots_battles.game_engine import *
-from bots_battles.games import *
+from __future__ import annotations
+from .game_factory import *
+from .game_engine import *
+from .networking import *
+from .games import *

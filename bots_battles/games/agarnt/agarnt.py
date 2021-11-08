@@ -1,12 +1,14 @@
+from __future__ import annotations
 import asyncio
 import logging
 from .agarnt_game_logic import AgarntGameLogic
-from bots_battles.game_engine import Game, Clock
+from .agarnt_game_config import AgarntGameConfig
+from bots_battles.game_engine import Game, Clock, CommunicationHandler
 
 class AgarntGame(Game):
     instance_counter = 0
 
-    def __init__(self, game_config, communication_handler):
+    def __init__(self, game_config: AgarntGameConfig, communication_handler: CommunicationHandler):
         super().__init__(AgarntGameLogic(), game_config, communication_handler)
         AgarntGame.instance_counter = AgarntGame.instance_counter + 1
         self.object_counter = AgarntGame.instance_counter

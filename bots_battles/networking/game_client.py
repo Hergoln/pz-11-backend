@@ -1,12 +1,14 @@
 import asyncio
 import websockets
+from websockets.legacy.client import WebSocketClientProtocol
+from ..game_engine import CommunicationHandler
 
 class GameClient:
     '''
     Defines GameClient class which represent a player in network structure.
     '''
     
-    def __init__(self, websocket, communication_handler):
+    def __init__(self, websocket: WebSocketClientProtocol, communication_handler: CommunicationHandler):
         self.__communication_handler = communication_handler
         self.__websocket = websocket
 
@@ -18,5 +20,10 @@ class GameClient:
 
         async for msg in self.__websocket:
             self.__communication_handler.on_receive(msg)
+    
+    async def terminate(self):
+        await self.__websocket.close_connection()
+        await self.__websocket.close()
+        
 
 
