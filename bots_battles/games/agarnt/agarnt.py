@@ -1,6 +1,7 @@
 from __future__ import annotations
 import asyncio
 import logging
+from uuid import UUID
 from .agarnt_game_logic import AgarntGameLogic
 from .agarnt_game_config import AgarntGameConfig
 from bots_battles.game_engine import Game, Clock, CommunicationHandler
@@ -25,6 +26,10 @@ class AgarntGame(Game):
 
         self._cleanup()
 
+    
+    def add_player(self, player_uuid: UUID):
+        pass
+    
     def _is_end(self):
         '''Check if game should end.'''
         return False or self._is_terminated

@@ -3,6 +3,7 @@ import abc
 from .communication_handler import CommunicationHandler
 from .game_config import GameConfig
 from .game_logic import GameLogic
+from uuid import UUID
 
 class Game(metaclass=abc.ABCMeta):
     '''Abstrac class which defines the game.'''
@@ -25,10 +26,16 @@ class Game(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
+    def add_player(self, player_uuid: UUID):
+        pass
+    
+    @abc.abstractmethod
     def _cleanup(self):
         ''''Cleanup all resources after close the game.'''
         pass
     
+    
+
     def terminate(self):
         ''''Terminates main loop game'''
         self._is_terminated = True

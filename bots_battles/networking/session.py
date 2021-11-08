@@ -6,6 +6,8 @@ from typing import List
 
 from websockets.legacy.client import WebSocketClientProtocol
 
+from bots_battles.game_engine import game
+
 from .game_client import GameClient
 from ..game_engine import CommunicationHandler
 from ..game_factory import GameFactory
@@ -36,7 +38,8 @@ class Session:
 
         game_client = GameClient(websocket, self.__communication_handler)
         self.__players.append(game_client)
-
+        self.__game.add_player(websocket.id)
+        
         try:
             await game_client.handle_messages()
         except:

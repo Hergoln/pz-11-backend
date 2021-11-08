@@ -1,6 +1,6 @@
-from asyncio import Queue
 from threading import Lock
-from typing import Callable
+from typing import Callable, Dict, Tuple
+from uuid import UUID
 
 class CommunicationHandler:
     '''
@@ -9,20 +9,19 @@ class CommunicationHandler:
 
     def __init__(self) :
         self.__incomming_messages_lock = Lock()
-        self.__incoming_messages = Queue()
+        self.__incoming_messages: Dict[str, str] = dict()
 
-    def on_receive(self, message: str):
+    def set_last_message(self, player_uuid: UUID, message: str):
         '''
-        Method which store incoming message into internal queue 
+        Method which store last incoming message into internal structure 
         for futher processing.
         Threadsafe.
         '''
 
-        print("Communication handler: receive message", message)
         with self.__incomming_messages_lock:
-            self.__incoming_messages.put_nowait(message)
+            self.__incoming_messages[player_uuid] = message
 
-    def handle_incomming_messages(self, fun: Callable[[Queue], None]):
+    def handle_incomming_messages(self, fun: Callable[[str, str], None]):
         '''
         Method which will process all messages stored into queue 
         by passing them to callback 'fun' to futher handling.
@@ -30,5 +29,5 @@ class CommunicationHandler:
         '''
 
         with self.__incomming_messages_lock:
-            while not self.__incoming_messages.empty():
-                fun(self.__incoming_messages.get_nowait())
+            for uuidWithMessage in self.__incoming_messages.items():
+                fun(uuidWithMessage)
