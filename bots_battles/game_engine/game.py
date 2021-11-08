@@ -26,16 +26,23 @@ class Game(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def add_player(self, player_uuid: UUID):
+    def add_player(self, player_uuid: UUID, player_name: str):
         pass
-    
+
+    @abc.abstractmethod
+    def remove_player(self, player_uuid: UUID):
+        pass
+
+    @abc.abstractmethod
+    def get_state(self):
+        '''Returns actual state of game'''
+        pass
+
     @abc.abstractmethod
     def _cleanup(self):
         ''''Cleanup all resources after close the game.'''
         pass
     
-    
-
     def terminate(self):
         ''''Terminates main loop game'''
         self._is_terminated = True

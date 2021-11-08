@@ -5,6 +5,7 @@ import logging
 from typing import List
 
 from websockets.legacy.client import WebSocketClientProtocol
+from websockets.legacy.protocol import broadcast
 
 from bots_battles.game_engine import game
 
@@ -16,7 +17,7 @@ from .. import Game, GameConfig
 
 class Session:
     '''
-    Define Session class, which handles one game instance and manage all it's plyers.
+    Define Session class, which handles one game instance and manage all it's players.
     Each session instance has a CommunicationHandler object which will be 
     shared between all players.
     '''
@@ -25,12 +26,18 @@ class Session:
         self.__session_id = session_id
         self.__players: List[GameClient] = []
         self.__game: Game = None
+        self.__game_type =  ""
         self.__game_factory = game_factory
-        self.__communication_handler = CommunicationHandler()
+        self.__communication_handler = CommunicationHandler(self.broadcast)
 
         logging.info("Session created!")
 
-    async def create_player(self, websocket: WebSocketClientProtocol):
+    async def broadcast(self, state: str):
+        logging.info(state)
+        async for w in self.__players:
+            await w.send(state)
+
+    async def create_player(self, websocket: WebSocketClientProtocol, player_name: str):
         '''Async method to create player and add them to game
         Parameters:
         websocket - player websocket
@@ -38,8 +45,8 @@ class Session:
 
         game_client = GameClient(websocket, self.__communication_handler)
         self.__players.append(game_client)
-        self.__game.add_player(websocket.id)
-        
+        self.__game.add_player(websocket.id, player_name)
+
         try:
             await game_client.handle_messages()
         except:
@@ -57,6 +64,7 @@ class Session:
         if self.__game != None:
             raise RuntimeError('Game in this session already exists!')
 
+        self.__game_type = game_type
         self.__game = self.__game_factory.create_game(game_type, self.__communication_handler, game_config)
         logging.info(f"create new game in session {self.session_id}, game type {game_type}")
         
@@ -73,6 +81,7 @@ class Session:
         logging.info(f'game in session {self.session_id} terminated')
         self.__game.terminate()
         self.__game = None
+        self.__game_type = ""
 
     async def clear(self):
         '''Clears connections with clients'''
@@ -83,5 +92,7 @@ class Session:
         '''Returns a unique session id.'''
         return self.__session_id
 
-
+    @property
+    def game_type(self):
+        return self.__game_type
 

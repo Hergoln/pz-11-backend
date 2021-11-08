@@ -61,7 +61,7 @@ class GameServer:
             await self.create_new_game(session_id, game_type)
 
         elif '/join_to_game' in path:
-            await self.join_to_game(websocket, query['session_id'][0])
+            await self.join_to_game(websocket, query['player_name'][0], query['session_id'][0])
         elif '/terminate_game' in path:
             await self.terminate_game(websocket, query['session_id'][0])
             
@@ -103,7 +103,7 @@ class GameServer:
         
         await self.__sessions[session_id].create_game(game_type, game_config)
 
-    async def join_to_game(self, websocket: WebSocketClientProtocol, session_id: str):
+    async def join_to_game(self, websocket: WebSocketClientProtocol, player_name: str, session_id: str):
         '''
         Async method which handles joining to game by client.
         Game should be created before. Proper session will be selected based on session_id.
@@ -115,7 +115,8 @@ class GameServer:
         '''
 
         if session_id in self.__sessions:
-            await self.__sessions[session_id].create_player(websocket)
+            await websocket.send(self.__sessions[session_id].game_type)
+            await self.__sessions[session_id].create_player(websocket, player_name)
         else:
             await self.__send_invalid_session_message(websocket, session_id)
 

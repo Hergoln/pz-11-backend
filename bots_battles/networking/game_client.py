@@ -1,4 +1,5 @@
 import asyncio
+import json
 import websockets
 from websockets.legacy.client import WebSocketClientProtocol
 from ..game_engine import CommunicationHandler
@@ -19,11 +20,13 @@ class GameClient:
         '''
 
         async for msg in self.__websocket:
-            self.__communication_handler.on_receive(msg)
+            self.__communication_handler.on_receive(json.load(msg))
     
     async def terminate(self):
         await self.__websocket.close_connection()
         await self.__websocket.close()
-        
+    
+    async def send(self, msg: str):
+        await self.__websocket.send(msg)
 
 
