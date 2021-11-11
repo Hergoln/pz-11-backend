@@ -9,9 +9,9 @@ from .agarnt_game_logic import AgarntGameLogic
 from .agarnt_game_config import AgarntGameConfig
 from .agarnt_player import AgarntPlayer
 from .board import Board
-from bots_battles.game_engine import Game, Clock, CommunicationHandler
+from bots_battles.game_engine import RealtimeGame, CommunicationHandler
 
-class AgarntGame(Game):
+class AgarntGame(RealtimeGame):
     instance_counter = 0
 
     def __init__(self, game_config: AgarntGameConfig, communication_handler: CommunicationHandler):
@@ -22,27 +22,13 @@ class AgarntGame(Game):
 
         AgarntGame.instance_counter = AgarntGame.instance_counter + 1
         self.object_counter = AgarntGame.instance_counter
-        self.clock = Clock()
 
         logging.info(f'create Agarnt game {self.object_counter}')
         
 
-    async def run(self):
-        while not self._is_end():
-            self._communication_handler.handle_incomming_messages(lambda msg: self._game_logic.process_input(msg))
-            print("DUPA")
-            await self.clock.tick(self._game_config.game_speed)
-            await self.update_game_state()
-            
-        self._cleanup()
-
-
     def add_player(self, player_uuid: UUID, player_name: str):
         self._players[player_uuid] = AgarntPlayer(player_name, player_uuid)
     
-    def remove_player(self, player_uuid: UUID):
-        self._players.pop(player_uuid, None)
-
     def get_state_for_player(self, player_uuid: UUID):
         current_player = self._players[player_uuid]
         state = dict()

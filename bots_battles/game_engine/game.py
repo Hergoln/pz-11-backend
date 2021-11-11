@@ -34,9 +34,8 @@ class Game(metaclass=abc.ABCMeta):
     def add_player(self, player_uuid: UUID, player_name: str):
         pass
 
-    @abc.abstractmethod
     def remove_player(self, player_uuid: UUID):
-        pass
+        self._players.pop(player_uuid, None)
 
     async def update_game_state(self):
         states: Dict[UUID, str] = dict()
