@@ -33,8 +33,8 @@ class Session:
         logging.info("Session created!")
 
     async def broadcast(self, state: str):
-        logging.info(state)
-        async for w in self.__players:
+        # logging.info(state)
+        for w in self.__players:
             await w.send(state)
 
     async def create_player(self, websocket: WebSocketClientProtocol, player_name: str):

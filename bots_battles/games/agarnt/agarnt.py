@@ -1,7 +1,7 @@
 from __future__ import annotations
 import asyncio
 import logging
-import json
+import orjson
 from typing import Dict
 from uuid import UUID
 from .agarnt_game_logic import AgarntGameLogic
@@ -44,12 +44,11 @@ class AgarntGame(Game):
 
     def get_state(self):
         state = dict()
-        # state['players'] = [{'uuid': uuid, 'x': player.x, 'y': player.y, 'mass': player.mass} for uuid, player in self.__players.items()]
+        state['players'] = [{'uuid': uuid, 'x': player.x, 'y': player.y, 'mass': player.mass} for uuid, player in self.__players.items()]
         state['board'] = self.__board.max_size
-        # state['food'] = self.__board.foods
-
-        # TODO convert dict to json
-        return (state)
+        state['food'] = self.__board.foods
+        
+        return orjson.dumps(state).decode("utf-8")
 
     def _is_end(self):
         '''Check if game should end.'''

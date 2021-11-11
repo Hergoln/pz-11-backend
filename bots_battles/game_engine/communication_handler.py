@@ -1,4 +1,3 @@
-import json
 from threading import Lock
 from typing import Callable, Dict, Tuple
 from uuid import UUID
@@ -34,6 +33,5 @@ class CommunicationHandler:
             for uuidWithMessage in self.__incoming_messages.items():
                 fun(uuidWithMessage)
 
-    async def handle_game_state(self, state: Dict[str, str]):
-        # TODO change json
+    async def handle_game_state(self, state: str):
         await self.__broadcast_handler(state)

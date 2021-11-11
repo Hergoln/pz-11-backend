@@ -1,3 +1,4 @@
+import numpy as np
 from typing import Tuple
 from numpy.random import default_rng 
 
@@ -9,9 +10,9 @@ class Board:
         self.foods = self.__rand_foods(max_food_number)
 
     def __rand_foods(self, n):
-        _x = (self.__rng.random(n)*self.max_size[0]).astype(int)
-        _y = (self.__rng.random(n)*self.max_size[1]).astype(int)
-        return list(zip(_x, _y))
+        x = (self.__rng.random(n)*self.max_size[0]).astype(int).tolist()
+        y = (self.__rng.random(n)*self.max_size[1]).astype(int).tolist()
+        return list(zip(x, y))
 
     def rand_eaten_food(self):
         eaten_food_number = self.__max_food_number - len(self.foods)
