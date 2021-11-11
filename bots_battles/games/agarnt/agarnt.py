@@ -30,7 +30,7 @@ class AgarntGame(Game):
     async def run(self):
         while not self._is_end():
             self._communication_handler.handle_incomming_messages(lambda msg: self._game_logic.process_input(msg))
-
+            print("DUPA")
             await self.clock.tick(self._game_config.game_speed)
             await self.update_game_state()
             
@@ -41,13 +41,13 @@ class AgarntGame(Game):
         self._players[player_uuid] = AgarntPlayer(player_name, player_uuid)
     
     def remove_player(self, player_uuid: UUID):
-        del self._players[player_uuid]
+        self._players.pop(player_uuid, None)
 
     def get_state_for_player(self, player_uuid: UUID):
         current_player = self._players[player_uuid]
         state = dict()
         state['player'] = {'x': current_player.x, 'y': current_player.y, 'mass': current_player.mass}
-        state['players'] = [{'name': player.name, 'x': player.x, 'y': player.y, 'mass': player.mass} for uuid, player in self._players.items() if uuid is not player_uuid]
+        state['players'] = [{'name': player.player_name, 'x': player.x, 'y': player.y, 'mass': player.mass} for uuid, player in self._players.items() if uuid is not player_uuid]
         state['board'] = self.__board.max_size
         state['food'] = self.__board.foods
         

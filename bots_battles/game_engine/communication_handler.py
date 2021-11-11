@@ -32,6 +32,7 @@ class CommunicationHandler:
         with self.__incomming_messages_lock:
             for uuidWithMessage in self.__incoming_messages.items():
                 fun(uuidWithMessage)
+            self.__incoming_messages.clear()
 
     async def handle_game_state(self, state: Dict[UUID, str]):
         for player_uuid, player_state in state.items():

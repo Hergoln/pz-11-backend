@@ -39,7 +39,12 @@ class Session:
 
     async def send_to(self, player_uuid: UUID, msg: str):
         # logging.info(msg)
-        await self.__players[player_uuid].send(msg)
+        try:
+            await self.__players[player_uuid].send(msg)
+        except:
+            self.__game.remove_player(player_uuid)
+            self.__players.pop(player_uuid, None)
+            logging.info('client disconnected')
 
     async def create_player(self, websocket: WebSocketClientProtocol, player_name: str):
         '''Async method to create player and add them to game
@@ -54,7 +59,8 @@ class Session:
         try:
             await game_client.handle_messages()
         except:
-            del self.__players[websocket.id]
+            self.__game.remove_player(websocket.id)
+            self.__players.pop(websocket.id, None)
             logging.info('client disconnected')
 
     async def create_game(self, game_type: str, game_config: GameConfig):
