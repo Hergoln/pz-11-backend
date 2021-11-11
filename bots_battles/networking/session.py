@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import List
-
+from typing import List, Dict
+from uuid import UUID
 from websockets.legacy.client import WebSocketClientProtocol
 from websockets.legacy.protocol import broadcast
 
@@ -24,18 +24,22 @@ class Session:
 
     def __init__(self, game_factory: GameFactory, session_id: str):
         self.__session_id = session_id
-        self.__players: List[GameClient] = []
+        self.__players: Dict[UUID, GameClient] = dict()
         self.__game: Game = None
         self.__game_type =  ""
         self.__game_factory = game_factory
-        self.__communication_handler = CommunicationHandler(self.broadcast)
+        self.__communication_handler = CommunicationHandler(self.send_to)
 
         logging.info("Session created!")
 
-    async def broadcast(self, state: str):
-        # logging.info(state)
+    async def broadcast(self, msg: str):
+        # logging.info(msg)
         for w in self.__players:
-            await w.send(state)
+            await w.send(msg)
+
+    async def send_to(self, player_uuid: UUID, msg: str):
+        # logging.info(msg)
+        await self.__players[player_uuid].send(msg)
 
     async def create_player(self, websocket: WebSocketClientProtocol, player_name: str):
         '''Async method to create player and add them to game
@@ -44,13 +48,13 @@ class Session:
         '''
 
         game_client = GameClient(websocket, self.__communication_handler)
-        self.__players.append(game_client)
+        self.__players[websocket.id] = game_client
         self.__game.add_player(websocket.id, player_name)
 
         try:
             await game_client.handle_messages()
         except:
-            self.__players.remove(game_client)
+            del self.__players[websocket.id]
             logging.info('client disconnected')
 
     async def create_game(self, game_type: str, game_config: GameConfig):
@@ -66,6 +70,7 @@ class Session:
 
         self.__game_type = game_type
         self.__game = self.__game_factory.create_game(game_type, self.__communication_handler, game_config)
+
         logging.info(f"create new game in session {self.session_id}, game type {game_type}")
         
         await asyncio.create_task(self.__game.run())

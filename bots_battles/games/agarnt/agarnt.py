@@ -4,9 +4,10 @@ import logging
 import orjson
 from typing import Dict
 from uuid import UUID
+
 from .agarnt_game_logic import AgarntGameLogic
 from .agarnt_game_config import AgarntGameConfig
-from .player import Player
+from .agarnt_player import AgarntPlayer
 from .board import Board
 from bots_battles.game_engine import Game, Clock, CommunicationHandler
 
@@ -15,9 +16,9 @@ class AgarntGame(Game):
 
     def __init__(self, game_config: AgarntGameConfig, communication_handler: CommunicationHandler):
         self.__board = Board(50, (200, 200))
-        self.__players: Dict[UUID, Player] = dict()
 
-        super().__init__(AgarntGameLogic(self.__board, self.__players), game_config, communication_handler)
+        super().__init__(AgarntGameLogic(self.__board), game_config, communication_handler)
+        self._game_logic.set_players(self._players)
 
         AgarntGame.instance_counter = AgarntGame.instance_counter + 1
         self.object_counter = AgarntGame.instance_counter
@@ -31,20 +32,22 @@ class AgarntGame(Game):
             self._communication_handler.handle_incomming_messages(lambda msg: self._game_logic.process_input(msg))
 
             await self.clock.tick(self._game_config.game_speed)
-            await self._communication_handler.handle_game_state(self.get_state())
+            await self.update_game_state()
             
         self._cleanup()
 
-    
+
     def add_player(self, player_uuid: UUID, player_name: str):
-        self.__players[player_uuid] = Player(player_name, player_uuid)
+        self._players[player_uuid] = AgarntPlayer(player_name, player_uuid)
     
     def remove_player(self, player_uuid: UUID):
-        del self.__players[player_uuid]
+        del self._players[player_uuid]
 
-    def get_state(self):
+    def get_state_for_player(self, player_uuid: UUID):
+        current_player = self._players[player_uuid]
         state = dict()
-        state['players'] = [{'uuid': uuid, 'x': player.x, 'y': player.y, 'mass': player.mass} for uuid, player in self.__players.items()]
+        state['player'] = {'x': current_player.x, 'y': current_player.y, 'mass': current_player.mass}
+        state['players'] = [{'name': player.name, 'x': player.x, 'y': player.y, 'mass': player.mass} for uuid, player in self._players.items() if uuid is not player_uuid]
         state['board'] = self.__board.max_size
         state['food'] = self.__board.foods
         

@@ -7,10 +7,10 @@ class CommunicationHandler:
     Defines the 'bridge' between networking structure (or another) and game engine.
     '''
 
-    def __init__(self, broadcast_handler: Callable[[str], None]) :
+    def __init__(self, send_to_handler: Callable[[UUID, str], None]) :
         self.__incomming_messages_lock = Lock()
         self.__incoming_messages: Dict[str, str] = dict()
-        self.__broadcast_handler = broadcast_handler
+        self.__send_to_handler = send_to_handler
 
     def set_last_message(self, player_uuid: UUID, message: Dict[str, str]):
         '''
@@ -33,5 +33,6 @@ class CommunicationHandler:
             for uuidWithMessage in self.__incoming_messages.items():
                 fun(uuidWithMessage)
 
-    async def handle_game_state(self, state: str):
-        await self.__broadcast_handler(state)
+    async def handle_game_state(self, state: Dict[UUID, str]):
+        for player_uuid, player_state in state.items():
+            await self.__send_to_handler(player_uuid, player_state)

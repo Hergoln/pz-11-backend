@@ -4,13 +4,16 @@ from typing import Dict
 from uuid import UUID
 from bots_battles.game_engine.game_logic import GameLogic
 from .board import Board
-from .player import Player
+from .agarnt_player import AgarntPlayer
 
 class AgarntGameLogic(GameLogic):
-    def __init__(self, board: Board, players: Dict[UUID, Player]):
+    def __init__(self, board: Board):
         self.__board = board
-        self.__players = players
+        self.__players = None
 
+    def set_players(self, players: Dict[UUID, AgarntPlayer]):
+        self.__players = players
+        
     def process_input(self, player_uuid: str, message: Dict[str, str]):
         player = self.__players[player_uuid]
         player.update_position(message['dir'])
