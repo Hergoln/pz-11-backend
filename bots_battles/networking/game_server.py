@@ -168,6 +168,10 @@ class GameServer:
         
         self.__loop.close()
 
+    def check_session_exists(self, session_id: str):
+        result = session_id in self.__sessions
+        return result, self.__sessions[session_id].game_type if result else None
+
     @property
     def game_factory(self):
         '''Returns a game factory instance.'''

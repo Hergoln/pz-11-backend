@@ -42,9 +42,14 @@ def games() -> Union[str, Response]:
     else:
         return "All active games (in the future)"
 
-#TODO: endpoint deprecated
-@game_bp.route('/games/<invite_key>', methods=['PUT'])
-def join_game(invite_key: Optional[str] =None) -> Response:
-    # todo: add logic to join to the game  in the future
-    # invite_key == id
-    return f"Successfully joined the game! Your invite key is: {invite_key}."
+@game_bp.route('/games/<session_id>', methods=['GET'])
+def check_if_game_exists(session_id: Optional[str] =None) -> Response:
+    result, game_type = game_server.check_session_exists(session_id)
+    return json_game_exists_message("Game with given session id exists!", game_type) \
+            if result else json_game_exists_message( "Game with given session id does not exist.", "")
+
+def json_game_exists_message(message: str, game_type: str):
+    return jsonify({
+            "message": message,  
+            "game_type": game_type
+        })
