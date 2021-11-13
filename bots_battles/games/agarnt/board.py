@@ -14,6 +14,6 @@ class Board:
         y = (self.__rng.random(n)*self.max_size[1]).astype(int).tolist()
         return list(zip(x, y))
 
-    def rand_eaten_food(self):
+    def refill_food(self):
         eaten_food_number = self.__max_food_number - len(self.foods)
         self.foods += self.__rand_foods(eaten_food_number)

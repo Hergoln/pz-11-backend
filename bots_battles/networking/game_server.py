@@ -135,9 +135,20 @@ class GameServer:
             await self.__send_invalid_session_message(websocket, session_id)
 
     def create_new_session_sync(self):
+        '''
+        Sync version of create_new_session method. 
+        It wait for finish and returns a session_id of fresh session.
+        It can be used in non asynchronus methods.
+        '''
+
         return asyncio.run_coroutine_threadsafe(self.create_new_session(), self.__loop).result()
 
     def create_new_game_sync(self, session_id: str, game_type: str, game_config: Optional[GameConfig] = None):
+        '''
+        Sync version of create_new_game_method.
+        It can be used in non asynchronus methods.
+        '''
+
         asyncio.run_coroutine_threadsafe(self.create_new_game(session_id, game_type, game_config), self.__loop)
 
     def terminate(self):
@@ -163,6 +174,8 @@ class GameServer:
         return self.__game_factory
 
     async def __send_invalid_session_message(self, websocket: WebSocketClientProtocol, session_id: str):
+        '''Helper function which will send to given websocket information about invalid session'''
+        
         logging.debug(f'Session with id {session_id} does not exist!')
         await websocket.send(json.dumps({'error': f'Session with {session_id} does not exist!'}))
         await websocket.close()

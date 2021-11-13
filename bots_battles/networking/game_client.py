@@ -26,6 +26,10 @@ class GameClient:
         await self.__websocket.close()
     
     async def send(self, msg: str):
+        '''
+        Async method which send message by websocket.
+        '''
+
         await self.__websocket.send(msg)
 
 

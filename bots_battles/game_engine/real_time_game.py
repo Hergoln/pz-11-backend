@@ -12,7 +12,7 @@ class RealtimeGame(Game):
 
     async def run(self):
         while not self._is_end():
-            self._communication_handler.handle_incomming_messages(lambda msg: self._game_logic.process_input(msg))
+            self._communication_handler.handle_incomming_messages(self._game_logic.process_input)
             await self._clock.tick(self._game_config.game_speed)
             await self.update_game_state()
             

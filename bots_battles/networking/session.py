@@ -33,11 +33,26 @@ class Session:
         logging.info("Session created!")
 
     async def broadcast(self, msg: str):
+        '''
+        Async method which will send given message to all connected players (websockets).
+
+        Parameters:
+        msg: Message to send.
+        '''
+
         # logging.info(msg)
         for w in self.__players:
             await w.send(msg)
 
     async def send_to(self, player_uuid: UUID, msg: str):
+        '''
+        Async method which will send given message to selected (by player_uuid argument) connected player (websocket).
+
+        Parameters:
+        player_uuid: Player UUID which will be used to select proper player.
+        msg: Message to send.
+        '''
+
         # logging.info(msg)
         try:
             await self.__players[player_uuid].send(msg)

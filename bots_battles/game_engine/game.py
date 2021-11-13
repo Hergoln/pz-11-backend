@@ -26,18 +26,33 @@ class Game(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     async def run(self):
-        ''''Starts a main loop of game. It's user task to create a loop and define their form 
+        '''Starts a main loop of game. It's user task to create a loop and define their form 
         (for example, should it be a loop with a constant game step or a turn-based game)'''
         pass
 
     @abc.abstractmethod
     def add_player(self, player_uuid: UUID, player_name: str):
+        '''
+        Add player to game.
+        Parameters:
+        player_uuid: Player identificator.
+        player_name: Player name.
+        '''
+
         pass
 
     def remove_player(self, player_uuid: UUID):
+        '''
+        Remove player from game.
+        '''
+
         self._players.pop(player_uuid, None)
 
     async def update_game_state(self):
+        '''
+        Helper method which can be used to get all players states and pass them to communication handler.
+        '''
+
         states: Dict[UUID, str] = dict()
         for player_uuid in self._players.keys():
             states[player_uuid] = self.get_state_for_player(player_uuid)
