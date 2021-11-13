@@ -53,10 +53,3 @@ def json_game_exists_message(message: str, game_type: str):
             "message": message,  
             "game_type": game_type
         })
-
-# #TODO: endpoint deprecated
-# @game_bp.route('/games/<invite_key>', methods=['PUT'])
-# def join_game(invite_key: Optional[str] =None) -> Response:
-#     # todo: add logic to join to the game  in the future
-#     # invite_key == id
-#     return f"Successfully joined the game! Your invite key is: {invite_key}."
