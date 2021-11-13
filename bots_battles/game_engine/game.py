@@ -1,8 +1,12 @@
 from __future__ import annotations
 import abc
+from typing import Dict
+from uuid import UUID
+
 from .communication_handler import CommunicationHandler
 from .game_config import GameConfig
 from .game_logic import GameLogic
+from .player import Player
 
 class Game(metaclass=abc.ABCMeta):
     '''Abstrac class which defines the game.'''
@@ -13,15 +17,50 @@ class Game(metaclass=abc.ABCMeta):
         game_logic: Defines game logic. New class derivered from GameLogic abstract class should be passed here. 
         communication_handler: Handles communication between game and outside enviromment (for example a website or standalone application).
         '''
-        self._game_logic = game_logic
-        self._game_config = game_config
+        self._players: Dict[UUID, Player] = dict()
         self._communication_handler = communication_handler
         self._is_terminated = False
 
+        self._game_logic = game_logic
+        self._game_config = game_config
+
     @abc.abstractmethod
     async def run(self):
-        ''''Starts a main loop of game. It's user task to create a loop and define their form 
+        '''Starts a main loop of game. It's user task to create a loop and define their form 
         (for example, should it be a loop with a constant game step or a turn-based game)'''
+        pass
+
+    @abc.abstractmethod
+    def add_player(self, player_uuid: UUID, player_name: str):
+        '''
+        Add player to game.
+        Parameters:
+        player_uuid: Player identificator.
+        player_name: Player name.
+        '''
+
+        pass
+
+    def remove_player(self, player_uuid: UUID):
+        '''
+        Remove player from game.
+        '''
+
+        self._players.pop(player_uuid, None)
+
+    async def update_game_state(self):
+        '''
+        Helper method which can be used to get all players states and pass them to communication handler.
+        '''
+
+        states: Dict[UUID, str] = dict()
+        for player_uuid in self._players.keys():
+            states[player_uuid] = self.get_state_for_player(player_uuid)
+        await self._communication_handler.handle_game_state(states)
+
+    @abc.abstractmethod
+    def get_state_for_player(self, player_uuid: UUID):
+        '''Returns actual state of game for player with given UUID'''
         pass
 
     @abc.abstractmethod
