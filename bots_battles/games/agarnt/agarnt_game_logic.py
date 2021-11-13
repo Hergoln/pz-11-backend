@@ -18,14 +18,14 @@ class AgarntGameLogic(GameLogic):
     def set_players(self, players: Dict[UUID, AgarntPlayer]):
         self.__players = players
 
-    def process_input(self, player_uuid: str, message: Dict[str, str]):
+    def process_input(self, player_uuid: str, message: Dict[str, str], delta: float):
         '''
         Process player inputs using game rules.
         '''
 
         player = self.__players[player_uuid]
-        player.update_position(message['dir'])
+        player.update_position(message['directions'], delta)
         
-        foods_to_remove = [f for f in self.__board if np.isclose(f, (player.x, player.y), (player.get_radius(), player.get_radius()))]
-        player.eat_food(len(foods_to_remove))
-        self.__board.foods.remove(foods_to_remove)
+        # foods_to_remove = [f for f in self.__board.foods if np.isclose(f, (player.x, player.y), (player.get_radius(), player.get_radius()))]
+        # player.eat_food(len(foods_to_remove))
+        # self.__board.foods.remove(foods_to_remove)

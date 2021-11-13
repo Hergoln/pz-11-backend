@@ -37,7 +37,7 @@ class AgarntGame(RealtimeGame):
         state['board'] = self.__board.max_size
         state['food'] = self.__board.foods
         
-        return orjson.dumps(state).decode("utf-8")
+        return state
 
     def _is_end(self):
         '''Check if game should end.'''

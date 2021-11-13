@@ -3,6 +3,8 @@ import abc
 from typing import Dict
 from uuid import UUID
 
+import orjson
+
 from .communication_handler import CommunicationHandler
 from .game_config import GameConfig
 from .game_logic import GameLogic
@@ -48,14 +50,16 @@ class Game(metaclass=abc.ABCMeta):
 
         self._players.pop(player_uuid, None)
 
-    async def update_game_state(self):
+    async def update_game_state(self, delta: float):
         '''
         Helper method which can be used to get all players states and pass them to communication handler.
         '''
 
         states: Dict[UUID, str] = dict()
         for player_uuid in self._players.keys():
-            states[player_uuid] = self.get_state_for_player(player_uuid)
+            player_state = self.get_state_for_player(player_uuid)
+            player_state['delta'] = delta
+            states[player_uuid] = orjson.dumps(player_state).decode("utf-8")
         await self._communication_handler.handle_game_state(states)
 
     @abc.abstractmethod

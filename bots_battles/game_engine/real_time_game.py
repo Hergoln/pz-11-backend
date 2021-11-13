@@ -11,9 +11,10 @@ class RealtimeGame(Game):
         self._clock = Clock()
 
     async def run(self):
+        delta = 0
         while not self._is_end():
-            self._communication_handler.handle_incomming_messages(self._game_logic.process_input)
-            await self._clock.tick(self._game_config.game_speed)
-            await self.update_game_state()
+            self._communication_handler.handle_incomming_messages(self._game_logic.process_input, delta)
+            delta = await self._clock.tick(self._game_config.game_speed)
+            await self.update_game_state(delta)
             
         self._cleanup()

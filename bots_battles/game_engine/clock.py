@@ -21,3 +21,4 @@ class Clock:
             delay = 0
  
         await asyncio.sleep(delay)
+        return delay

@@ -17,7 +17,7 @@ class CommunicationHandler:
         self.__incoming_messages: Dict[str, str] = dict()
         self.__send_to_handler = send_to_handler
 
-    def set_last_message(self, player_uuid: UUID, message: Dict[str, str]):
+    def set_last_message(self, player_uuid: UUID, message: Dict):
         '''
         Method which store last incoming message into internal structure 
         for futher processing.
@@ -27,7 +27,7 @@ class CommunicationHandler:
         with self.__incomming_messages_lock:
             self.__incoming_messages[player_uuid] = message
 
-    def handle_incomming_messages(self, fun: Callable[[str, Dict[str, str]], None]):
+    def handle_incomming_messages(self, fun: Callable[[str, Dict[str, str]], None], delta: float):
         '''
         Method which will process all messages stored into queue 
         by passing them to callback 'fun' to futher handling.
@@ -36,7 +36,7 @@ class CommunicationHandler:
 
         with self.__incomming_messages_lock:
             for uuidWithMessage in self.__incoming_messages.items():
-                fun(*uuidWithMessage)
+                fun(*uuidWithMessage, delta)
             self.__incoming_messages.clear()
 
     async def handle_game_state(self, state: Dict[UUID, str]):
