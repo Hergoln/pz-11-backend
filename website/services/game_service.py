@@ -46,10 +46,10 @@ def games() -> Union[str, Response]:
 def check_if_game_exists(session_id: Optional[str] =None) -> Response:
     result, game_type = game_server.check_session_exists(session_id)
     return json_game_exists_message("Game with given session id exists!", game_type) \
-            if result else json_game_exists_message( "Game with given session id does not exist.", "")
+            if result else json_game_exists_message( "Game with given session id does not exist.", "", 404)
 
-def json_game_exists_message(message: str, game_type: str):
+def json_game_exists_message(message: str, game_type: str, status: int=200):
     return jsonify({
             "message": message,  
             "game_type": game_type
-        })
+        }), status
