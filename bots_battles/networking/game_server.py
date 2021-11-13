@@ -61,7 +61,6 @@ class GameServer:
             await self.create_new_game(session_id, game_type)
 
         elif '/join_to_game' in path:
-            print(query)
             player_name = unquote_plus(query['player_name'][0])
             session_id = unquote_plus(query['session_id'][0])
             await self.join_to_game(websocket, player_name, session_id)
