@@ -5,6 +5,7 @@ from uuid import UUID
 from bots_battles.game_engine.game_logic import GameLogic
 from .board import Board
 from .agarnt_player import AgarntPlayer
+from util.math import euclidean_distance
 
 class AgarntGameLogic(GameLogic):
     '''
@@ -26,6 +27,10 @@ class AgarntGameLogic(GameLogic):
         player = self.__players[player_uuid]
         player.update_position(message['directions'], delta)
         
-        # foods_to_remove = [f for f in self.__board.foods if np.isclose(f, (player.x, player.y), (player.get_radius(), player.get_radius()))]
-        # player.eat_food(len(foods_to_remove))
-        # self.__board.foods.remove(foods_to_remove)
+        try:
+            foods_to_remove = [f for f in self.__board.foods if euclidean_distance(f[0], player.x, f[1], player.y) <= player.get_radius()] 
+            player.eat_food(len(foods_to_remove))
+            for f in foods_to_remove:
+                self.__board.foods.remove(f)
+        except Exception as e:
+            print("FOOD ERROR: ", repr(e))

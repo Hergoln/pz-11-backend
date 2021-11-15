@@ -17,7 +17,7 @@ class CommunicationHandler:
         self.__incoming_messages: Dict[str, str] = dict()
         self.__send_to_handler = send_to_handler
 
-    def set_last_message(self, player_uuid: UUID, message: Dict):
+    def set_last_message(self, player_uuid: UUID, message: Dict[str, str]):
         '''
         Method which store last incoming message into internal structure 
         for futher processing.
