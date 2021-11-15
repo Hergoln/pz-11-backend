@@ -61,7 +61,9 @@ class GameServer:
             await self.create_new_game(session_id, game_type)
 
         elif '/join_to_game' in path:
-            await self.join_to_game(websocket, query['player_name'][0], query['session_id'][0])
+            player_name = unquote_plus(query['player_name'][0])
+            session_id = unquote_plus(query['session_id'][0])
+            await self.join_to_game(websocket, player_name, session_id)
         elif '/terminate_game' in path:
             await self.terminate_game(websocket, query['session_id'][0])
             
@@ -115,7 +117,6 @@ class GameServer:
         '''
 
         if session_id in self.__sessions:
-            await websocket.send(self.__sessions[session_id].game_type)
             await self.__sessions[session_id].create_player(websocket, player_name)
         else:
             await self.__send_invalid_session_message(websocket, session_id)

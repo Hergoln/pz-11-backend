@@ -1,5 +1,6 @@
 from bots_battles.game_engine import Player
 from uuid import UUID 
+from typing import Dict
 
 class AgarntPlayer(Player):
     VELOCITY = 5
@@ -12,17 +13,15 @@ class AgarntPlayer(Player):
         self.y = 0.0
         self.color = None
 
-    def update_position(self, direction: str):        
-        if direction == "UP":
-            self.y += AgarntPlayer.VELOCITY / self.radius 
-        elif direction == "DOWN":
-            self.y -= AgarntPlayer.VELOCITY / self.radius 
-        elif direction == "LEFT":
-            self.x -= AgarntPlayer.VELOCITY / self.radius 
-        elif direction == "RIGHT":
-            self.x += AgarntPlayer.VELOCITY / self.radius 
-        else:
-            raise RuntimeError("Not defined direction!")
+    def update_position(self, directions: Dict[str, bool], delta: float):        
+        if directions['UP']:
+            self.y += AgarntPlayer.VELOCITY / self.radius * delta
+        if directions['DOWN']:
+            self.y -= AgarntPlayer.VELOCITY / self.radius * delta
+        if directions['LEFT']:
+            self.x -= AgarntPlayer.VELOCITY / self.radius * delta
+        if directions['RIGHT']:
+            self.x += AgarntPlayer.VELOCITY / self.radius * delta
     
     def get_radius(self) -> int:
         return self.radius

@@ -7,6 +7,6 @@ class GameLogic(metaclass=abc.ABCMeta):
     '''Abstract class which defines a rules of game.'''
 
     @abc.abstractmethod
-    def process_input(self, player_uuid: str, message: Dict[str, str]):
+    def process_input(self, player_uuid: str, message: Dict[str, str], delta: float):
         '''Abstract method where message will be parsed and all games rules will be check.'''
         pass

@@ -1,5 +1,6 @@
 import asyncio
 import websockets
+import orjson
 from websockets.legacy.client import WebSocketClientProtocol
 from ..game_engine import CommunicationHandler
 
@@ -18,8 +19,13 @@ class GameClient:
         by passing them to CommunicationHandle object.
         '''
 
+        websocket_id = self.__websocket.id
+
         async for msg in self.__websocket:
-            self.__communication_handler.on_receive(msg)
+            try:
+                self.__communication_handler.set_last_message(websocket_id, orjson.loads(msg))
+            except Exception as e:
+                print("PARSE ERROR: ", repr(e))
     
     async def terminate(self):
         await self.__websocket.close_connection()
