@@ -102,7 +102,7 @@ class GameServer:
         game_type: Game type, for example 'agarnt'.
         game_type: Game config, if None is set, default config will be set.
         '''
-        
+
         await self.__sessions[session_id].create_game(game_type, game_config)
 
     async def join_to_game(self, websocket: WebSocketClientProtocol, player_name: str, session_id: str):
@@ -141,7 +141,7 @@ class GameServer:
         It wait for finish and returns a session_id of fresh session.
         It can be used in non asynchronus methods.
         '''
-
+    
         return asyncio.run_coroutine_threadsafe(self.create_new_session(), self.__loop).result()
 
     def create_new_game_sync(self, session_id: str, game_type: str, game_config: Optional[GameConfig] = None):
@@ -149,7 +149,7 @@ class GameServer:
         Sync version of create_new_game_method.
         It can be used in non asynchronus methods.
         '''
-
+        
         asyncio.run_coroutine_threadsafe(self.create_new_game(session_id, game_type, game_config), self.__loop)
 
     def terminate(self):
