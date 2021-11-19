@@ -8,8 +8,8 @@ db = SQLAlchemy()
 
 class Game(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
-    start_date = db.Column(db.TIMESTAMP)
-    end_date = db.Column(db.TIMESTAMP)
+    start_date = db.Column(db.DateTime)
+    end_date = db.Column(db.DateTime)
     states_id = db.Column(db.BigInteger)
     type_id = db.Column(db.BigInteger)
 
