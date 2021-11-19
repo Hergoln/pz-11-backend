@@ -32,8 +32,8 @@ class Game_Type(db.Model):
 
 db_bp = Blueprint("db", __name__)
 
-@db_bp.route('/add_game/')
-def add_user():
+@db_bp.route('/add_game_to_db/')
+def add_game_to_db():
     with current_app.app_context():
         start_date = datetime.today()
         end_date = datetime.today() + timedelta(hours=1)
@@ -42,7 +42,7 @@ def add_user():
         db.session.commit()
         return new_game.__repr__()
 
-@db_bp.route('/all_games')
-def user_all():
+@db_bp.route('/all_ended_games')
+def all_ended_games():
     with current_app.app_context():
         return str(db.session.query(Game).all())
