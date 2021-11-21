@@ -34,3 +34,13 @@ class AgarntGameLogic(GameLogic):
                 self.__board.foods.remove(f)
         except Exception as e:
             print("FOOD ERROR: ", repr(e))
+
+        try:
+            other_players = [p for p in self.__players if p.uuid != player_uuid]
+            players_to_remove = [p for p in other_players if p.radius/player.radius < 0.8 and euclidean_distance(p.x, player.x, p.y, player.y) <= player.radius]
+
+            player.eat_other_players(players_to_remove)
+            for p in players_to_remove:
+                p.is_defeated = True # set flag to true if eaten, then use it to send proper state message
+        except Exception as e:
+            print("OTHER PLAYER ERROR: ", repr(e))

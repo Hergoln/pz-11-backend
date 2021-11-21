@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import orjson
 from typing import List, Dict
 from uuid import UUID
 from websockets.legacy.client import WebSocketClientProtocol
@@ -56,6 +57,11 @@ class Session:
         # logging.info(msg)
         try:
             await self.__players[player_uuid].send(msg)
+            msg_dict = orjson.loads(msg)
+            if msg_dict['defeated'] == True:
+                self.__game.remove_player(player_uuid)
+                self.__players.pop(player_uuid, None)
+                logging.info('client disconnected via being defeated')
         except:
             self.__game.remove_player(player_uuid)
             self.__players.pop(player_uuid, None)

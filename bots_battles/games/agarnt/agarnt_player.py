@@ -1,6 +1,7 @@
+from __future__ import annotations
 from bots_battles.game_engine import Player
 from uuid import UUID 
-from typing import Dict
+from typing import Dict, List
 
 class AgarntPlayer(Player):
     VELOCITY = 5
@@ -28,4 +29,8 @@ class AgarntPlayer(Player):
 
     def eat_food(self, number_of_eaten_food: int):
         self.radius += number_of_eaten_food
+
+    def eat_other_player(self, other_players: List[AgarntPlayer]):
+        self.radius += sum(p.radius for p in other_players)
+
         
