@@ -1,5 +1,6 @@
 import asyncio
 import websockets
+import gzip
 import orjson
 from websockets.legacy.client import WebSocketClientProtocol
 from ..game_engine import CommunicationHandler
@@ -23,7 +24,7 @@ class GameClient:
 
         async for msg in self.__websocket:
             try:
-                self.__communication_handler.set_last_message(websocket_id, orjson.loads(msg))
+                self.__communication_handler.set_last_message(websocket_id, orjson.loads(gzip.decompress(msg)))
             except Exception as e:
                 print("PARSE ERROR: ", repr(e))
     
@@ -36,6 +37,6 @@ class GameClient:
         Async method which send message by websocket.
         '''
 
-        await self.__websocket.send(msg)
+        await self.__websocket.send(gzip.compress(msg.encode('utf-8')))
 
 

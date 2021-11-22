@@ -30,12 +30,14 @@ class AgarntGame(RealtimeGame):
         self._players[player_uuid] = AgarntPlayer(player_name, player_uuid)
     
     def get_state_for_player(self, player_uuid: UUID):
+        n_digits = 3
         current_player = self._players[player_uuid]
         state = dict()
-        state['player'] = {'x': current_player.x, 'y': current_player.y, 'radius': current_player.radius}
-        state['players'] = [{'name': player.player_name, 'x': player.x, 'y': player.y, 'radius': player.radius} for uuid, player in self._players.items() if uuid is not player_uuid]
-        state['board'] = self.__board.max_size
-        state['food'] = self.__board.foods
+
+        state['p'] = {'x': round(current_player.x, n_digits), 'y': round(current_player.y, n_digits), 'r': round(current_player.radius, n_digits)}
+        state['ps'] = [{'n': player.player_name, 'x': round(player.x, n_digits), 'y': round(player.y, n_digits), 'r': round(player.radius,n_digits)} for uuid, player in self._players.items() if uuid is not player_uuid]
+        state['b'] = self.__board.max_size
+        state['f'] = self.__board.foods
         
         return state
 
