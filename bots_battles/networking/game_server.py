@@ -102,6 +102,7 @@ class GameServer:
         game_type: Game type, for example 'agarnt'.
         game_type: Game config, if None is set, default config will be set.
         '''
+    
 
         await self.__sessions[session_id].create_game(game_type, game_config)
 
@@ -149,8 +150,9 @@ class GameServer:
         Sync version of create_new_game_method.
         It can be used in non asynchronus methods.
         '''
-        
-        asyncio.run_coroutine_threadsafe(self.create_new_game(session_id, game_type, game_config), self.__loop)
+                    
+        future = asyncio.run_coroutine_threadsafe(self.create_new_game(session_id, game_type, game_config), self.__loop)
+        future.add_done_callback(lambda f: f.result())
 
     def terminate(self):
         async def wrapper():

@@ -5,7 +5,6 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 import asyncio
-import sys
 
 from bots_battles import GameFactory
 from bots_battles import GameServer
@@ -19,13 +18,7 @@ if __name__ == "__main__":
     ws_port = os.environ.get("WS_PORT", 2137)
     game_factory = GameFactory(GAMES)
     game_server = GameServer(game_factory, "0.0.0.0", ws_port)
-
-    def handle_unhandled_exception(exc_type, exc_value, exc_traceback):
-        """Handler for unhandled exceptions that will write to the logs"""
-        logging.error("GAME SERVER ERROR: ", exc_info=(exc_type, exc_value, exc_traceback))
-
-    sys.excepthook = handle_unhandled_exception
-
+    
     def game_server_init(game_server, game_factory):
         asyncio.set_event_loop(asyncio.new_event_loop())
         
@@ -33,6 +26,7 @@ if __name__ == "__main__":
             game_server.listen(asyncio.get_event_loop())
         except KeyboardInterrupt:
             logging.info("Keyboard interrupt")
+    
 
     game_thread = Thread(target=game_server_init, args=[game_server, game_factory])
     game_thread.start()
