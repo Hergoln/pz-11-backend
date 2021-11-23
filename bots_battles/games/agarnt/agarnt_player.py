@@ -2,9 +2,14 @@ from __future__ import annotations
 from bots_battles.game_engine import Player
 from uuid import UUID 
 from typing import Dict, List
+import numpy as np
 
 class AgarntPlayer(Player):
-    VELOCITY = 5
+    MAX_VELOCITY = 20
+
+    def velocity(cls, radius):
+        log_value = np.log(radius) + 1
+        return cls.MAX_VELOCITY - max(0, min(log_value, cls.MAX_VELOCITY - 1)) # clamp
 
     def __init__(self, player_name: str, uuid: UUID):
         super().__init__(uuid)
@@ -16,13 +21,13 @@ class AgarntPlayer(Player):
 
     def update_position(self, directions: Dict[str, bool], delta: float):        
         if directions['U']: #UP
-            self.y += AgarntPlayer.VELOCITY / self.radius * delta
+            self.y += AgarntPlayer.velocity(self.radius) * delta
         if directions['D']: #DOWN
-            self.y -= AgarntPlayer.VELOCITY / self.radius * delta
+            self.y -= AgarntPlayer.velocity(self.radius) * delta
         if directions['L']: #LEFT
-            self.x -= AgarntPlayer.VELOCITY / self.radius * delta
+            self.x -= AgarntPlayer.velocity(self.radius) * delta
         if directions['R']: #RIGHT
-            self.x += AgarntPlayer.VELOCITY / self.radius * delta
+            self.x += AgarntPlayer.velocity(self.radius) * delta
     
     def get_radius(self) -> int:
         return self.radius
