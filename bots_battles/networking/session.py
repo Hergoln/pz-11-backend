@@ -58,7 +58,7 @@ class Session:
         try:
             await self.__players[player_uuid].send(msg)
             msg_dict = orjson.loads(msg)
-            if msg_dict['defeated'] == True:
+            if msg_dict['d'] == 1:
                 self.__game.remove_player(player_uuid)
                 self.__players.pop(player_uuid, None)
                 logging.info('client disconnected via being defeated')

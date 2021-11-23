@@ -11,6 +11,9 @@ class AgarntPlayer(Player):
         log_value = np.log(radius) + 1
         return cls.MAX_VELOCITY - max(0, min(log_value, cls.MAX_VELOCITY - 1)) # clamp
 
+    def radius_func(cls, value):
+        return np.sqrt(value)
+
     def __init__(self, player_name: str, uuid: UUID):
         super().__init__(uuid)
         self.player_name = player_name
@@ -18,6 +21,7 @@ class AgarntPlayer(Player):
         self.x = 0.0
         self.y = 0.0
         self.color = None
+        self.score = 0
 
     def update_position(self, directions: Dict[str, bool], delta: float):        
         if directions['U']: #UP
@@ -33,9 +37,10 @@ class AgarntPlayer(Player):
         return self.radius
 
     def eat_food(self, number_of_eaten_food: int):
-        self.radius += number_of_eaten_food
+        self.radius += AgarntPlayer.radius_func(number_of_eaten_food)
+        self.score += number_of_eaten_food
 
     def eat_other_player(self, other_players: List[AgarntPlayer]):
-        self.radius += sum(p.radius for p in other_players)
+        self.radius += AgarntPlayer.radius_func(sum(p.radius for p in other_players))
 
         
