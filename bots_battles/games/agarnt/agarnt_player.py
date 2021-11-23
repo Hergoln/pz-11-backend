@@ -14,13 +14,13 @@ class AgarntPlayer(Player):
         self.color = None
 
     def update_position(self, directions: Dict[str, bool], delta: float):        
-        if directions['UP']:
+        if directions['U']: #UP
             self.y += AgarntPlayer.VELOCITY / self.radius * delta
-        if directions['DOWN']:
+        if directions['D']: #DOWN
             self.y -= AgarntPlayer.VELOCITY / self.radius * delta
-        if directions['LEFT']:
+        if directions['L']: #LEFT
             self.x -= AgarntPlayer.VELOCITY / self.radius * delta
-        if directions['RIGHT']:
+        if directions['R']: #RIGHT
             self.x += AgarntPlayer.VELOCITY / self.radius * delta
     
     def get_radius(self) -> int:
