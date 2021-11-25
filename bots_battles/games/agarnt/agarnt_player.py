@@ -45,6 +45,8 @@ class AgarntPlayer(Player):
         self.score += number_of_eaten_food
 
     def eat_other_players(self, other_players: List[AgarntPlayer]):
-        self.radius += AgarntPlayer.radius_func(sum(p.radius for p in other_players))
+        players_total_size = sum(p.radius for p in other_players)
+        self.radius += AgarntPlayer.radius_func(players_total_size)
+        self.score += players_total_size
 
         
