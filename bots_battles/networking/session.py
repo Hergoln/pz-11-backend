@@ -61,7 +61,8 @@ class Session:
             if msg_dict['d'] == 1:
                 self.__game.remove_player(player_uuid)
                 client = self.__players.pop(player_uuid, None)
-                await client.terminate()
+                if client is not None:
+                    await client.terminate()
                 logging.info('client disconnected via being defeated')
         except:
             self.__game.remove_player(player_uuid)
