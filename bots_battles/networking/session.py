@@ -60,7 +60,8 @@ class Session:
             msg_dict = orjson.loads(msg)
             if msg_dict['d'] == 1:
                 self.__game.remove_player(player_uuid)
-                self.__players.pop(player_uuid, None)
+                client = self.__players.pop(player_uuid, None)
+                await client.terminate()
                 logging.info('client disconnected via being defeated')
         except:
             self.__game.remove_player(player_uuid)
@@ -117,7 +118,7 @@ class Session:
 
     async def clear(self):
         '''Clears connections with clients'''
-        [await player.terminate() for player in self.__players]
+        [await player.terminate() for player in self.__players.values()]
     
     @property
     def session_id(self):

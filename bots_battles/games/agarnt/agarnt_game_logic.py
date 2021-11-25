@@ -24,7 +24,9 @@ class AgarntGameLogic(GameLogic):
         Process player inputs using game rules.
         '''
 
-        player = self.__players[player_uuid]
+        player = self.__players.get(player_uuid, None)
+        if player is None:
+            return
         player.update_position(message['directions'], delta)
         
         try:
@@ -36,8 +38,9 @@ class AgarntGameLogic(GameLogic):
             print("FOOD ERROR: ", repr(e))
 
         try:
-            other_players = [p for p in self.__players if p.uuid != player_uuid]
-            players_to_remove = [p for p in other_players if p.radius/player.radius < 0.8 and euclidean_distance(p.x, player.x, p.y, player.y) <= player.radius]
+            other_players = [other_uuid for other_uuid in self.__players if other_uuid != player_uuid]
+            players_to_remove = [self.__players[uuid] for uuid in other_players if self.__players[uuid].radius/player.radius < 0.8 
+                                                and euclidean_distance(self.__players[uuid].x, player.x, self.__players[uuid].y, player.y) <= player.radius]
 
             player.eat_other_players(players_to_remove)
             for p in players_to_remove:

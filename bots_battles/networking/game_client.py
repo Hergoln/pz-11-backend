@@ -29,7 +29,6 @@ class GameClient:
                 print("PARSE ERROR: ", repr(e))
     
     async def terminate(self):
-        await self.__websocket.close_connection()
         await self.__websocket.close()
     
     async def send(self, msg: str):
