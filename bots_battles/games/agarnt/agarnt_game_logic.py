@@ -30,11 +30,13 @@ class AgarntGameLogic(GameLogic):
             return
         player.update_position(message['directions'], delta)
         
-        if self.is_collision_with_other_players(player, player_uuid):
+
+        other_players = [other_uuid for other_uuid in self.__players if other_uuid != player_uuid] 
+        if self.is_collision_with_other_players(player, other_players):
             player.is_defeated = True
             return
 
-        self.update_eaten_other_players(player, player_uuid)
+        self.update_eaten_other_players(player, other_players)
         self.update_eaten_foods(player)
 
     def update_eaten_foods(self, player):
@@ -50,14 +52,13 @@ class AgarntGameLogic(GameLogic):
         except Exception as e:
             print("FOOD ERROR: ", repr(e))
 
-    def update_eaten_other_players(self, player, player_uuid):
+    def update_eaten_other_players(self, player, other_players):
         '''
         Method to check if player find other smaller players
         and game logic adds to player points and increases the radius.
         '''
         try:
-            other_players = [other_uuid for other_uuid in self.__players if other_uuid != player_uuid]
-            players_to_remove = [self.__players[uuid] for uuid in other_players if self.__players[uuid].radius/player.radius < self.PLAYER_RADIUS_RATIO
+            players_to_remove = [self.__players[uuid] for uuid in other_players if self.__players[uuid].radius/player.radius < AgarntGameLogic.PLAYER_RADIUS_RATIO
                                                 and euclidean_distance(self.__players[uuid].x, player.x, self.__players[uuid].y, player.y) <= player.radius]
 
             player.eat_other_players(players_to_remove)
@@ -66,15 +67,14 @@ class AgarntGameLogic(GameLogic):
         except Exception as e:
             print("OTHER PLAYER ERROR: ", repr(e))
 
-    def is_collision_with_other_players(self, player, player_uuid):
+    def is_collision_with_other_players(self, player, other_players):
         '''
         Method to check if player collides with other bigger players.
         If yes - game logic marks current player as defeated and returns.
         If no - game logic continues.
         '''
         try:
-            other_players = [other_uuid for other_uuid in self.__players if other_uuid != player_uuid]
-            return any([uuid for uuid in other_players if player.radius/self.__players[uuid].radius < self.PLAYER_RADIUS_RATIO
+            return any([uuid for uuid in other_players if player.radius/self.__players[uuid].radius < AgarntGameLogic.PLAYER_RADIUS_RATIO
                         and euclidean_distance(self.__players[uuid].x, player.x, self.__players[uuid].y, player.y) <= player.radius])
 
         except Exception as e:
