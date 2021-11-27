@@ -93,18 +93,18 @@ class GameServer:
 
         return session.session_id
 
-    async def create_new_game(self, session_id: str, game_type: str, game_config: Optional[GameConfig] = None):
+    async def create_new_game(self, session_id: str, game_type: str, game_config: Optional[str] = None):
         '''
         Async method to create game in existing session with given id.
         If game_type will be not defined, runtime error will be raised.
         
         Parameters:
         game_type: Game type, for example 'agarnt'.
-        game_type: Game config, if None is set, default config will be set.
+        game_type: Game config, if None is set, default config will be set, else it will be parsed to concrete game config
         '''
     
-
-        await self.__sessions[session_id].create_game(game_type, game_config)
+        config = self.__game_factory.get_game_config(game_type, game_config) if game_config else None
+        await self.__sessions[session_id].create_game(game_type, config)
 
     async def join_to_game(self, websocket: WebSocketClientProtocol, player_name: str, session_id: str):
         '''
@@ -148,7 +148,7 @@ class GameServer:
     
         return asyncio.run_coroutine_threadsafe(self.create_new_session(), self.__loop).result()
 
-    def create_new_game_sync(self, session_id: str, game_type: str, game_config: Optional[GameConfig] = None):
+    def create_new_game_sync(self, session_id: str, game_type: str, game_config: Optional[str] = None):
         '''
         Sync version of create_new_game_method.
         It can be used in non asynchronus methods.

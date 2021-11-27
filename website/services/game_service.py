@@ -23,6 +23,11 @@ def game_types() -> Response:
     return jsonify({ 'game_types': list(this.game_server.
     game_factory.get_all_games()) })
 
+@game_bp.route('/game_config/<game_type>', methods=['GET'])
+def game_config(game_type: Optional[str]=None) -> Response:
+    game_config = this.game_server.game_factory.get_game_config_as_json(game_type)
+    return game_config
+
 @game_bp.route('/games/', methods=['POST', 'GET'])
 def games() -> Union[str, Response]:
     if request.method == 'POST':
@@ -33,7 +38,8 @@ def games() -> Union[str, Response]:
         
         host = host.split(':')[0]
         session_id = game_server.create_new_session_sync()
-        game_server.create_new_game_sync(session_id, content['type'])
+        game_config = content['config'] if 'config' in content else None
+        game_server.create_new_game_sync(session_id, content['type'], game_config)
     
         return jsonify({
             "session_id": session_id
@@ -43,7 +49,7 @@ def games() -> Union[str, Response]:
         return "All active games (in the future)"
 
 @game_bp.route('/games/<session_id>', methods=['GET'])
-def check_if_game_exists(session_id: Optional[str] =None) -> Response:
+def check_if_game_exists(session_id: Optional[str]=None) -> Response:
     result, game_type = game_server.check_session_exists(session_id)
     return json_game_exists_message("Game with given session id exists!", game_type) \
             if result else json_game_exists_message( "Game with given session id does not exist.", "", 404)

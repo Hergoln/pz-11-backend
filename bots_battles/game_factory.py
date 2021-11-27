@@ -42,8 +42,18 @@ class GameFactory:
         config = config if config != None else self.__games[game_type][1]()
         return self.__games[game_type][0](config, communication_handler)
 
-    def get_game_config_class(self, game_type):
+    def get_game_config_as_json(self, game_type:str):
         if game_type not in self.__games:
             raise RuntimeError("game_type is not recognized")
 
-        return self.__games[game_type][1]
+        return self.__games[game_type][1]().to_json()
+
+    def get_game_config(self, game_type:str, config:str):
+        if game_type not in self.__games:
+            raise RuntimeError("game_type is not recognized")
+        
+        game_config = self.__games[game_type][1]()
+        game_config.load_json(config)
+
+        return game_config
+

@@ -1,6 +1,7 @@
-from bots_battles.game_engine.game_config import GameConfig
+from bots_battles.game_engine.config_options import StringOption
+from bots_battles.game_engine.real_time_game_config import RealtimeGameConfig
 
-class AgarntGameConfig(GameConfig):
+class AgarntGameConfig(RealtimeGameConfig):
     '''Defines Agarnt config. Here should store all settings of game (for example speed of game)'''
-    game_speed = 30 # FPS
-    
+    def __init__(self):
+        super().__init__()
