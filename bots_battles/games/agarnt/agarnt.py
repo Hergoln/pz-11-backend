@@ -15,7 +15,7 @@ class AgarntGame(RealtimeGame):
     instance_counter = 0
 
     def __init__(self, game_config: AgarntGameConfig, communication_handler: CommunicationHandler):
-        self.__board = Board(50, (200, 200))
+        self.__board = Board(game_config['food_number'], (game_config['board_number'], game_config['board_number']))
 
         super().__init__(AgarntGameLogic(self.__board), game_config, communication_handler)
         self._game_logic.set_players(self._players)
