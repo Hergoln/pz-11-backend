@@ -76,3 +76,10 @@ class Game(metaclass=abc.ABCMeta):
         ''''Terminates main loop game'''
         self._is_terminated = True
 
+    @property
+    def game_config(self):
+        return self._game_config
+    
+    def is_full(self):
+        return self._game_config.max_player_number <= len(self._players) 
+

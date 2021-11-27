@@ -118,7 +118,10 @@ class GameServer:
         '''
 
         if session_id in self.__sessions:
-            await self.__sessions[session_id].create_player(websocket, player_name)
+            if self.__sessions[session_id].is_full():
+                await self.__send_full_session_session_message(websocket, session_id)
+            else:
+                await self.__sessions[session_id].create_player(websocket, player_name)
         else:
             await self.__send_invalid_session_message(websocket, session_id)
 
@@ -161,7 +164,6 @@ class GameServer:
 
         asyncio.run(wrapper())
         self.__service.ws_server.close()
-        print(self.__service.ws_server.close_task)
         
         async def stop_listen_task():
             self.__listen_task.close()
@@ -185,4 +187,11 @@ class GameServer:
         
         logging.debug(f'Session with id {session_id} does not exist!')
         await websocket.send(json.dumps({'error': f'Session with {session_id} does not exist!'}))
+        await websocket.close()
+
+    async def __send_full_session_session_message(self, websocket: WebSocketClientProtocol, session_id: str):
+        '''Helper function which will send to given websocket information about full game session'''
+        
+        logging.debug(f'Cannot join to session id {session_id}, players limit reached!')
+        await websocket.send(json.dumps({'error': f'Cannot join to session id {session_id}, players limit reached!'}))
         await websocket.close()

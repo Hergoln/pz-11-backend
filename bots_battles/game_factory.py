@@ -41,3 +41,9 @@ class GameFactory:
 
         config = config if config != None else self.__games[game_type][1]()
         return self.__games[game_type][0](config, communication_handler)
+
+    def get_game_config_class(self, game_type):
+        if game_type not in self.__games:
+            raise RuntimeError("game_type is not recognized")
+
+        return self.__games[game_type][1]
