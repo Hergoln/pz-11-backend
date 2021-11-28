@@ -6,4 +6,4 @@ class AgarntGameConfig(RealtimeGameConfig):
     def __init__(self):
         super().__init__()
         self._add_option('food_number', IntOption("Number of food to eat", 50, 1), True)
-        self._add_option('board_number', IntOption("Board size", 200, 10), True)
+        self._add_option('board_size', IntOption("Board size", 200, 10), True)
