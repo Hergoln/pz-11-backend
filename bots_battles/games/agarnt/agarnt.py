@@ -35,9 +35,11 @@ class AgarntGame(RealtimeGame):
         state = dict()
 
         state['p'] = {'x': round(current_player.x, n_digits), 'y': round(current_player.y, n_digits), 'r': round(current_player.radius, n_digits)}
+        state['d'] = 1 if current_player.is_defeated else 0
         state['ps'] = [{'n': player.player_name, 'x': round(player.x, n_digits), 'y': round(player.y, n_digits), 'r': round(player.radius,n_digits)} for uuid, player in self._players.items() if uuid is not player_uuid]
         state['b'] = self.__board.max_size
         state['f'] = self.__board.foods
+        state['s'] = current_player.score
         
         return state
 
