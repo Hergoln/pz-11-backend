@@ -93,18 +93,18 @@ class GameServer:
 
         return session.session_id
 
-    async def create_new_game(self, session_id: str, game_type: str, game_config: Optional[GameConfig] = None):
+    async def create_new_game(self, session_id: str, game_type: str, game_config: Optional[str] = None):
         '''
         Async method to create game in existing session with given id.
         If game_type will be not defined, runtime error will be raised.
         
         Parameters:
         game_type: Game type, for example 'agarnt'.
-        game_type: Game config, if None is set, default config will be set.
+        game_type: Game config, if None is set, default config will be set, else it will be parsed to concrete game config
         '''
     
-
-        await self.__sessions[session_id].create_game(game_type, game_config)
+        config = self.__game_factory.get_game_config(game_type, game_config) if game_config else None
+        await self.__sessions[session_id].create_game(game_type, config)
 
     async def join_to_game(self, websocket: WebSocketClientProtocol, player_name: str, session_id: str):
         '''
@@ -118,7 +118,10 @@ class GameServer:
         '''
 
         if session_id in self.__sessions:
-            await self.__sessions[session_id].create_player(websocket, player_name)
+            if self.__sessions[session_id].is_full():
+                await self.__send_full_session_session_message(websocket, session_id)
+            else:
+                await self.__sessions[session_id].create_player(websocket, player_name)
         else:
             await self.__send_invalid_session_message(websocket, session_id)
 
@@ -145,7 +148,7 @@ class GameServer:
     
         return asyncio.run_coroutine_threadsafe(self.create_new_session(), self.__loop).result()
 
-    def create_new_game_sync(self, session_id: str, game_type: str, game_config: Optional[GameConfig] = None):
+    def create_new_game_sync(self, session_id: str, game_type: str, game_config: Optional[str] = None):
         '''
         Sync version of create_new_game_method.
         It can be used in non asynchronus methods.
@@ -161,7 +164,6 @@ class GameServer:
 
         asyncio.run(wrapper())
         self.__service.ws_server.close()
-        print(self.__service.ws_server.close_task)
         
         async def stop_listen_task():
             self.__listen_task.close()
@@ -185,4 +187,11 @@ class GameServer:
         
         logging.debug(f'Session with id {session_id} does not exist!')
         await websocket.send(json.dumps({'error': f'Session with {session_id} does not exist!'}))
+        await websocket.close()
+
+    async def __send_full_session_session_message(self, websocket: WebSocketClientProtocol, session_id: str):
+        '''Helper function which will send to given websocket information about full game session'''
+        
+        logging.debug(f'Cannot join to session id {session_id}, players limit reached!')
+        await websocket.send(json.dumps({'error': f'Cannot join to session id {session_id}, players limit reached!'}))
         await websocket.close()

@@ -1,4 +1,4 @@
-from bots_battles.game_engine.game_logic import GameLogic
+from .game_logic import GameLogic
 from .game import Game 
 from .game_logic import GameLogic 
 from .game_config import GameConfig 
@@ -14,7 +14,7 @@ class RealtimeGame(Game):
         delta = 0
         while not self._is_end():
             self._communication_handler.handle_incomming_messages(self._game_logic.process_input, delta)
-            delta = await self._clock.tick(self._game_config.game_speed)
+            delta = await self._clock.tick(self._game_config['fps'])
             await self.update_game_state(delta)
             
         self._cleanup()

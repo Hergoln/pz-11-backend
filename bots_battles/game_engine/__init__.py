@@ -3,6 +3,8 @@ from .communication_handler import *
 from .game import Game
 from .game_logic import GameLogic
 from .game_config import GameConfig
+from .config_options import *
 from .real_time_game import RealtimeGame
+from .real_time_game_config import RealtimeGameConfig
 from .clock import Clock
 from .player import Player

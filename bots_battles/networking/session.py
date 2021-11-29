@@ -121,6 +121,11 @@ class Session:
         '''Clears connections with clients'''
         [await player.terminate() for player in self.__players.values()]
     
+    def is_full(self):
+        if self.__game == None:
+            raise RuntimeError(f'Game in this session (id={self.session_id}) do not exists!')
+        return self.__game.is_full()
+
     @property
     def session_id(self):
         '''Returns a unique session id.'''
