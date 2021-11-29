@@ -7,12 +7,16 @@ import numpy as np
 class AgarntPlayer(Player):
     MAX_VELOCITY = 20
 
+    @classmethod
     def velocity(cls, radius):
         log_value = np.log(radius) + 1
-        return cls.MAX_VELOCITY - max(0, min(log_value, cls.MAX_VELOCITY - 1)) # clamp
+        # conversion to Python's float is necessary because np.log returns np.float64 object which is non-serializable
+        return float(cls.MAX_VELOCITY - max(0, min(log_value, cls.MAX_VELOCITY - 1))) # clamp
 
+    @classmethod
     def radius_func(cls, value):
-        return np.sqrt(value)
+        # same deal here
+        return float(np.sqrt(value))
 
     def __init__(self, player_name: str, uuid: UUID):
         super().__init__(uuid)
@@ -40,7 +44,9 @@ class AgarntPlayer(Player):
         self.radius += AgarntPlayer.radius_func(number_of_eaten_food)
         self.score += number_of_eaten_food
 
-    def eat_other_player(self, other_players: List[AgarntPlayer]):
-        self.radius += AgarntPlayer.radius_func(sum(p.radius for p in other_players))
+    def eat_other_players(self, other_players: List[AgarntPlayer]):
+        players_total_size = sum(p.radius for p in other_players)
+        self.radius += AgarntPlayer.radius_func(players_total_size)
+        self.score += int(players_total_size)
 
         
