@@ -16,19 +16,19 @@ class Game(db.Model):
     def __repr__(self) -> str:
         return f"Game('{self.id}', '{self.start_date}', '{self.end_date}', '{self.states_id}', '{self.type_id}')"
 
-class Game_States(db.Model):
+class GameStates(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     states_id = db.Column(db.JSON)
 
     def __repr__(self) -> str:
-        return f"Game_States('{self.id}', '{self.states_id}')"
+        return f"GameStates('{self.id}', '{self.states_id}')"
 
-class Game_Type(db.Model):
+class GameType(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     type_name = db.Column(db.String)
 
     def __repr__(self) -> str:
-        return f"Game_Type('{self.id}', '{self.type_name}')"
+        return f"GameType('{self.id}', '{self.type_name}')"
 
 db_bp = Blueprint("db", __name__)
 
