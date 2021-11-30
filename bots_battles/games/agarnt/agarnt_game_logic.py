@@ -32,8 +32,10 @@ class AgarntGameLogic(GameLogic):
         
 
         other_players = [other_uuid for other_uuid in self.__players if other_uuid != player_uuid] 
-        if self.is_collision_with_other_players(player, other_players):
+        is_collision, first_player = self.is_collision_with_other_players(player, other_players)
+        if is_collision:
             player.is_defeated = True
+            first_player.eat_other_players([player])
             return
 
         self.update_eaten_other_players(player, other_players)
@@ -74,8 +76,10 @@ class AgarntGameLogic(GameLogic):
         If no - game logic continues.
         '''
         try:
-            return any([uuid for uuid in other_players if player.radius/self.__players[uuid].radius < AgarntGameLogic.PLAYER_RADIUS_RATIO
-                        and euclidean_distance(self.__players[uuid].x, player.x, self.__players[uuid].y, player.y) <= player.radius])
+            result = [self.__players[uuid] for uuid in other_players if player.radius/self.__players[uuid].radius < AgarntGameLogic.PLAYER_RADIUS_RATIO
+                        and euclidean_distance(self.__players[uuid].x, player.x, self.__players[uuid].y, player.y) <= player.radius]
+            first_player = result[0] if len(result) > 0 else None
+            return any(result), first_player
 
         except Exception as e:
             print("PLAYER COLLISION ERROR: ", repr(e))
