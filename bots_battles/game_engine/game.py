@@ -8,7 +8,7 @@ import orjson
 from .communication_handler import CommunicationHandler
 from .game_config import GameConfig
 from .game_logic import GameLogic
-from .player import Player
+from .player import Player, Spectator
 
 class Game(metaclass=abc.ABCMeta):
     '''Abstrac class which defines the game.'''
@@ -20,6 +20,7 @@ class Game(metaclass=abc.ABCMeta):
         communication_handler: Handles communication between game and outside enviromment (for example a website or standalone application).
         '''
         self._players: Dict[UUID, Player] = dict()
+        self._spectators: Dict[UUID, Spectator] = dict()
         self._communication_handler = communication_handler
         self._is_terminated = False
 
@@ -43,6 +44,15 @@ class Game(metaclass=abc.ABCMeta):
 
         pass
 
+    def add_spectator(self, spectator_uuid: UUID, spectator_name: str):
+        '''
+        Add spectator to game.
+        Parameters:
+        spectator_uuid: Player identificator.
+        spectator_name: Spectator name:
+        '''
+        self._spectators[spectator_uuid] = Spectator(spectator_uuid, spectator_name)
+
     def remove_player(self, player_uuid: UUID):
         '''
         Remove player from game.
@@ -62,9 +72,22 @@ class Game(metaclass=abc.ABCMeta):
             states[player_uuid] = orjson.dumps(player_state).decode("utf-8")
         await self._communication_handler.handle_game_state(states)
 
+
+        states = dict()
+        spectator_state = self.get_state_for_spectator()
+        spectator_state['delta'] = delta
+        for spectator_uuid in self._spectators.keys():
+            states[spectator_uuid] = orjson.dumps(spectator_state).decode("utf-8")
+        await self._communication_handler.handle_game_state(states)
+
     @abc.abstractmethod
     def get_state_for_player(self, player_uuid: UUID):
         '''Returns actual state of game for player with given UUID'''
+        pass
+
+    @abc.abstractmethod
+    def get_state_for_spectator(self):
+        '''Returns actual state of game for all spectators'''
         pass
 
     @abc.abstractmethod

@@ -77,6 +77,7 @@ class Session:
 
         game_client = GameClient(websocket, self.__communication_handler)
         self.__players[websocket.id] = game_client
+
         self.__game.add_player(websocket.id, player_name)
 
         try:
@@ -85,6 +86,24 @@ class Session:
             self.__game.remove_player(websocket.id)
             self.__players.pop(websocket.id, None)
             logging.info('client disconnected')
+    
+    async def create_spectator(self, websocket: WebSocketClientProtocol, spectator_name: str):
+        '''Async method to create spectator and add them to game
+        Parameters:
+        websocket - spectator websocket
+        '''
+
+        game_client = GameClient(websocket, self.__communication_handler)
+        self.__players[websocket.id] = game_client
+
+        self.__game.add_spectator(websocket.id, spectator_name)
+
+        try:
+            await game_client.handle_messages()
+        except:
+            self.__game.remove_player(websocket.id)
+            self.__players.pop(websocket.id, None)
+            logging.info('spectator disconnected')
 
     async def create_game(self, game_type: str, game_config: GameConfig):
         '''Async method to create game instance.

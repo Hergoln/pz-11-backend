@@ -15,6 +15,8 @@ class AgarntGame(RealtimeGame):
     instance_counter = 0
 
     def __init__(self, game_config: AgarntGameConfig, communication_handler: CommunicationHandler):
+        self.__n_digits = 3
+
         self.__board = Board(game_config['food_number'], (game_config['board_size'], game_config['board_size']))
         super().__init__(AgarntGameLogic(self.__board), game_config, communication_handler)
         self._game_logic.set_players(self._players)
@@ -28,18 +30,27 @@ class AgarntGame(RealtimeGame):
     def add_player(self, player_uuid: UUID, player_name: str):
         self._players[player_uuid] = AgarntPlayer(player_name, player_uuid)
     
-    def get_state_for_player(self, player_uuid: UUID):
-        n_digits = 3
-        current_player = self._players[player_uuid]
+    def __get_common_state_part(self, n_digits):
         state = dict()
-
-        state['p'] = {'x': round(current_player.x, n_digits), 'y': round(current_player.y, n_digits), 'r': round(current_player.radius, n_digits)}
-        state['d'] = 1 if current_player.is_defeated else 0
-        state['ps'] = [{'n': player.player_name, 'x': round(player.x, n_digits), 'y': round(player.y, n_digits), 'r': round(player.radius,n_digits)} for uuid, player in self._players.items() if uuid is not player_uuid]
         state['b'] = self.__board.max_size
         state['f'] = self.__board.foods
+        return state
+
+
+    def get_state_for_player(self, player_uuid: UUID):
+        current_player = self._players[player_uuid]
+        state = self.__get_common_state_part(self.__n_digits)
+
+        state['p'] = {'x': round(current_player.x, self.__n_digits), 'y': round(current_player.y, self.__n_digits), 'r': round(current_player.radius, self.__n_digits)}
+        state['ps'] = [{'n': player.player_name, 'x': round(player.x, self.__n_digits), 'y': round(player.y, self.__n_digits), 'r': round(player.radius, self.__n_digits)} for uuid, player in self._players.items() if uuid is not player_uuid]
+        state['d'] = 1 if current_player.is_defeated else 0
         state['s'] = current_player.score
         
+        return state
+
+    def get_state_for_spectator(self):
+        state = self.__get_common_state_part(self.__n_digits)
+        state['ps'] = [{'n': player.player_name, 'x': round(player.x, self.__n_digits), 'y': round(player.y, self.__n_digits), 'r': round(player.radius, self.__n_digits)} for uuid, player in self._players.items()]
         return state
 
     def _is_end(self):
