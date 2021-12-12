@@ -66,6 +66,7 @@ class Session:
                 logging.info('client disconnected via being defeated')
         except:
             self.__game.remove_player(uuid)
+            self.__game.remove_spectator(uuid)
             self.__players.pop(uuid, None)
             logging.info('client disconnected')
 

@@ -63,7 +63,7 @@ class GameServer:
         elif '/join_to_game' in path:
             player_name = unquote_plus(query['player_name'][0])
             session_id = unquote_plus(query['session_id'][0])
-            is_spectator = True if 'is_spectator' in query else False
+            is_spectator = (query['is_spectator'][0] == "True") if 'is_spectator' in query else False
             
             await self.join_to_game(websocket, player_name, session_id, is_spectator)
         elif '/terminate_game' in path:
