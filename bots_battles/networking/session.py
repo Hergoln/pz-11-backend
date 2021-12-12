@@ -101,7 +101,7 @@ class Session:
         try:
             await game_client.handle_messages()
         except:
-            self.__game.remove_player(websocket.id)
+            self.__game.remove_spectator(websocket.id)
             self.__players.pop(websocket.id, None)
             logging.info('spectator disconnected')
 

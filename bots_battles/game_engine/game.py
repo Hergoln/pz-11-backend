@@ -60,6 +60,13 @@ class Game(metaclass=abc.ABCMeta):
 
         self._players.pop(player_uuid, None)
 
+    def remove_spectator(self, spectator_uuid: UUID):
+        '''
+        Remove spectator from game.
+        '''
+
+        self._spectators.pop(spectator_uuid, None)
+
     async def update_game_state(self, delta: float):
         '''
         Helper method which can be used to get all players states and pass them to communication handler.
