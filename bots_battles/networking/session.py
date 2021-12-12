@@ -45,28 +45,28 @@ class Session:
         for w in self.__players:
             await w.send(msg)
 
-    async def send_to(self, player_uuid: UUID, msg: str):
+    async def send_to(self, uuid: UUID, msg: str):
         '''
-        Async method which will send given message to selected (by player_uuid argument) connected player (websocket).
+        Async method which will send given message to selected (by player_uuid argument) connected player or spectator (websocket).
 
         Parameters:
-        player_uuid: Player UUID which will be used to select proper player.
+        uuid: UUID which will be used to select proper player or spectator.
         msg: Message to send.
         '''
 
         # logging.info(msg)
         try:
-            await self.__players[player_uuid].send(msg)
+            await self.__players[uuid].send(msg)
             msg_dict = orjson.loads(msg)
-            if msg_dict['d'] == 1:
-                self.__game.remove_player(player_uuid)
-                client = self.__players.pop(player_uuid, None)
+            if 'd' in msg_dict and msg_dict['d'] == 1:
+                self.__game.remove_player(uuid)
+                client = self.__players.pop(uuid, None)
                 if client is not None:
                     await client.terminate()
                 logging.info('client disconnected via being defeated')
         except:
-            self.__game.remove_player(player_uuid)
-            self.__players.pop(player_uuid, None)
+            self.__game.remove_player(uuid)
+            self.__players.pop(uuid, None)
             logging.info('client disconnected')
 
     async def create_player(self, websocket: WebSocketClientProtocol, player_name: str):
