@@ -63,7 +63,9 @@ class GameServer:
         elif '/join_to_game' in path:
             player_name = unquote_plus(query['player_name'][0])
             session_id = unquote_plus(query['session_id'][0])
-            await self.join_to_game(websocket, player_name, session_id)
+            is_spectator = (query['is_spectator'][0] == "True") if 'is_spectator' in query else False
+            
+            await self.join_to_game(websocket, player_name, session_id, is_spectator)
         elif '/terminate_game' in path:
             await self.terminate_game(websocket, query['session_id'][0])
             
@@ -106,7 +108,7 @@ class GameServer:
         config = self.__game_factory.get_game_config(game_type, game_config) if game_config else None
         await self.__sessions[session_id].create_game(game_type, config)
 
-    async def join_to_game(self, websocket: WebSocketClientProtocol, player_name: str, session_id: str):
+    async def join_to_game(self, websocket: WebSocketClientProtocol, player_name: str, session_id: str, is_spectator):
         '''
         Async method which handles joining to game by client.
         Game should be created before. Proper session will be selected based on session_id.
@@ -115,13 +117,17 @@ class GameServer:
         Parameters:
         websocket: client websocket.
         session_id: session id where new player will be assign.
+        is_spectator: Define if new player is spectator.
         '''
 
         if session_id in self.__sessions:
-            if self.__sessions[session_id].is_full():
-                await self.__send_full_session_session_message(websocket, session_id)
+            if is_spectator:
+                await self.__sessions[session_id].create_spectator(websocket, player_name)
             else:
-                await self.__sessions[session_id].create_player(websocket, player_name)
+                if self.__sessions[session_id].is_full():
+                    await self.__send_full_session_session_message(websocket, session_id)
+                else:
+                    await self.__sessions[session_id].create_player(websocket, player_name)
         else:
             await self.__send_invalid_session_message(websocket, session_id)
 
