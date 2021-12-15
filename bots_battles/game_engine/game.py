@@ -116,5 +116,3 @@ class Game(metaclass=abc.ABCMeta):
     @property
     def player_names(self):
         return (player.player_name for player in self._players.values())
-
-
