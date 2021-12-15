@@ -19,8 +19,7 @@ class AgarntPlayer(Player):
         return float(np.sqrt(value))
 
     def __init__(self, player_name: str, uuid: UUID):
-        super().__init__(uuid)
-        self.player_name = player_name
+        super().__init__(uuid, player_name)
         self.radius = 1
         self.x = 0.0
         self.y = 0.0
