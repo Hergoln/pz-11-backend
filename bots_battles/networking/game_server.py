@@ -164,19 +164,10 @@ class GameServer:
         future.add_done_callback(lambda f: f.result())
 
     def terminate(self):
-        async def wrapper():
-            [await session.clear() for session in self.__sessions.values()]
-            self.__sessions.clear()
-
-        asyncio.run(wrapper())
-        self.__service.ws_server.close()
-        
-        async def stop_listen_task():
-            self.__listen_task.close()
-        self.__loop.run_until_complete(asyncio.wait([stop_listen_task()]))
-
+        for task in asyncio.all_tasks(self.__loop):
+            task.cancel()
         self.__loop.stop()
-        
+        time.sleep(1)
         self.__loop.close()
 
     def check_session_exists(self, session_id: str):
