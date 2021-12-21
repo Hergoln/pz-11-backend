@@ -35,6 +35,9 @@ class GameConfig(metaclass=abc.ABCMeta):
     
     def __setitem__(self, property_name: str, value: Any) -> None:
         self._options[property_name].value = value
+
+    def __contains__(self, item: str):
+        return item in self._options
         
     def to_json(self) -> str:
         '''Convert config to json'''

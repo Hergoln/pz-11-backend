@@ -179,6 +179,23 @@ class GameServer:
         '''Returns a game factory instance.'''
         return self.__game_factory
 
+    @property
+    def sessions_info(self):
+        ''' Returns current games basic info'''
+        list_of_sessions = []
+        for session in self.__sessions.values():
+            session_info = {
+                "session_id": session.session_id,
+                "game_type": session.game_type,
+                "number_of_players": session.number_of_players
+            }
+            config = session.config
+            if config is not None and 'max_player_number' in config:
+                session_info['max_number_of_players'] = config['max_player_number']
+            list_of_sessions.append(session_info)
+        return list_of_sessions
+
+
     async def __send_invalid_session_message(self, websocket: WebSocketClientProtocol, session_id: str):
         '''Helper function which will send to given websocket information about invalid session'''
         

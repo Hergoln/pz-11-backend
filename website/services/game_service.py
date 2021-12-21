@@ -44,9 +44,8 @@ def games() -> Union[str, Response]:
         return jsonify({
             "session_id": session_id
         })
-        
     else:
-        return "All active games (in the future)"
+        return jsonify(game_server.sessions_info)
 
 @game_bp.route('/games/<session_id>', methods=['GET'])
 def check_if_game_exists(session_id: Optional[str]=None) -> Response:
@@ -59,3 +58,4 @@ def json_game_exists_message(message: str, game_type: str, status: int=200):
             "message": message,  
             "game_type": game_type
         }), status
+    
