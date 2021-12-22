@@ -39,7 +39,7 @@ def games() -> Union[str, Response]:
         host = host.split(':')[0]
         session_id = game_server.create_new_session_sync()
         game_config = content['config'] if 'config' in content else None
-        game_server.create_new_game_sync(session_id, content['type'], game_config)
+        game_server.create_new_game_sync(session_id, content['type'], content['name'], game_config)
     
         return jsonify({
             "session_id": session_id
