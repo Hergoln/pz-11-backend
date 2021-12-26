@@ -35,6 +35,9 @@ def games() -> Union[str, Response]:
         
         host = request.host
         content: Dict[str, str] = request.json
+
+        if game_server.check_game_name_exists(content['name']):
+            return jsonify({"message": f"Game with name '{content['name']}' already exists!"}), 406
         
         host = host.split(':')[0]
         session_id = game_server.create_new_session_sync()
