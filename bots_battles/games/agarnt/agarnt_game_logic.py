@@ -28,7 +28,7 @@ class AgarntGameLogic(GameLogic):
         player = self.__players.get(player_uuid, None)
         if player is None:
             return
-        player.update_position(message['directions'], delta)
+        player.update_position(message['directions'], self.__board.max_size, delta)
         
 
         other_players = [other_uuid for other_uuid in self.__players if other_uuid != player_uuid] 

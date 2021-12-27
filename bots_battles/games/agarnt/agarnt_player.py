@@ -1,7 +1,7 @@
 from __future__ import annotations
 from bots_battles.game_engine import Player
 from uuid import UUID 
-from typing import Dict, List
+from typing import Dict, List, Tuple
 import numpy as np
 
 class AgarntPlayer(Player):
@@ -27,7 +27,7 @@ class AgarntPlayer(Player):
         self.color = None
         self.score = 0
 
-    def update_position(self, directions: Dict[str, bool], delta: float):        
+    def update_position(self, directions: Dict[str, bool], board_size: Tuple[int, int], delta: float):        
         if directions['U']: #UP
             self.y += AgarntPlayer.velocity(self.radius) * delta
         if directions['D']: #DOWN
@@ -36,6 +36,10 @@ class AgarntPlayer(Player):
             self.x -= AgarntPlayer.velocity(self.radius) * delta
         if directions['R']: #RIGHT
             self.x += AgarntPlayer.velocity(self.radius) * delta
+
+        self.x = float(np.clip(self.x, 0, board_size[0]))
+        self.y = float(np.clip(self.y, 0, board_size[1]))
+
     
     def get_radius(self) -> int:
         return self.radius
