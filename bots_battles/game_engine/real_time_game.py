@@ -16,7 +16,6 @@ class RealtimeGame(Game):
     async def run(self):
         delta = 0
         while not self._is_end():
-            print("asdasd")
             components_to_update = self._communication_handler.handle_incomming_messages(self._game_logic.process_input, delta)
             delta = await self._clock.tick(self._game_config['fps'])
             await self.update_game_state(components_to_update, delta)
