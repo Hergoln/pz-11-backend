@@ -79,7 +79,8 @@ class Session:
         game_client = GameClient(websocket, self.__communication_handler)
         self.__players[websocket.id] = game_client
 
-        self.__game.add_player(websocket.id, player_name)
+        init_state = self.__game.add_player(websocket.id, player_name)
+        await self.send_to(websocket.id, init_state)
 
         try:
             await game_client.handle_messages()
@@ -97,7 +98,8 @@ class Session:
         game_client = GameClient(websocket, self.__communication_handler)
         self.__players[websocket.id] = game_client
 
-        self.__game.add_spectator(websocket.id, spectator_name)
+        init_state = self.__game.add_spectator(websocket.id, spectator_name)
+        await self.send_to(websocket.id, init_state)
 
         try:
             await game_client.handle_messages()

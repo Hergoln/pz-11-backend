@@ -1,5 +1,5 @@
 from threading import Lock
-from typing import Callable, Dict, Tuple
+from typing import Callable, Dict, Set, Tuple
 from uuid import UUID
 
 class CommunicationHandler:
@@ -27,17 +27,20 @@ class CommunicationHandler:
         with self.__incomming_messages_lock:
             self.__incoming_messages[player_uuid] = message
 
-    def handle_incomming_messages(self, fun: Callable[[str, Dict[str, str]], None], delta: float):
+    def handle_incomming_messages(self, fun: Callable[[str, Dict[str, str]], None], delta: float) -> Set[str]:
         '''
         Method which will process all messages stored into queue 
         by passing them to callback 'fun' to futher handling.
         Threadsafe.
+        Returns components names which defines which information should be updated.
         '''
-
+        components_to_update = set()
         with self.__incomming_messages_lock:
             for uuidWithMessage in self.__incoming_messages.items():
-                fun(*uuidWithMessage, delta)
+                comp = fun(*uuidWithMessage, delta)
+                components_to_update.union(comp)
             self.__incoming_messages.clear()
+        return components_to_update
 
     async def handle_game_state(self, state: Dict[UUID, str]):
         '''
