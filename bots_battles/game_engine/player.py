@@ -6,9 +6,10 @@ class Player(metaclass=abc.ABCMeta):
     Defines a basic player structure with identificator.
     '''
 
-    def __init__(self, uuid: UUID):
+    def __init__(self, uuid: UUID, name: str):
         self.uuid = uuid
         self.is_defeated = False
+        self.player_name = name
         
 
 class Spectator(metaclass=abc.ABCMeta):
