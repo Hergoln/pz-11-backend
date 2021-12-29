@@ -148,6 +148,9 @@ class Session:
             raise RuntimeError(f'Game in this session (id={self.session_id}) do not exists!')
         return self.__game.is_full()
 
+    def check_player_name_exists(self, name:str):
+        return name in self.__game.player_names
+
     @property
     def session_id(self):
         '''Returns a unique session id.'''

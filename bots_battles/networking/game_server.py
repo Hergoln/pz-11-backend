@@ -174,8 +174,15 @@ class GameServer:
         result = session_id in self.__sessions
         return result, self.__sessions[session_id].game_type if result else None
 
+
     def check_game_name_exists(self, game_name: str):
         return any([v.game_name for k, v in self.__sessions.items() if v.game_name == game_name])
+
+    def check_session_name_exists(self, session_id: str, name: str):
+        result, _ = self.check_session_exists(session_id)
+        if result is None:
+            return False
+        return self.__sessions[session_id].check_player_name_exists(name)
 
     @property
     def game_factory(self):
