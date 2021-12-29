@@ -58,7 +58,7 @@ class AgarntGame(RealtimeGame):
 
     def __get_common_state_part(self, components_to_update: Set[str], n_digits: int):
         state = dict()
-        if "board":
+        if "board" in components_to_update:
             state['b'] = self.__board.max_size
         if "food" in components_to_update:
             state['f'] = self.__board.foods
