@@ -158,3 +158,12 @@ class Session:
     def game_type(self):
         return self.__game_type
 
+    @property
+    def number_of_players(self):
+        return len(self.__players)
+
+    @property
+    def config(self):
+        return self.__game.game_config
+
+

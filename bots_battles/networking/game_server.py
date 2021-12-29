@@ -164,19 +164,10 @@ class GameServer:
         future.add_done_callback(lambda f: f.result())
 
     def terminate(self):
-        async def wrapper():
-            [await session.clear() for session in self.__sessions.values()]
-            self.__sessions.clear()
-
-        asyncio.run(wrapper())
-        self.__service.ws_server.close()
-        
-        async def stop_listen_task():
-            self.__listen_task.close()
-        self.__loop.run_until_complete(asyncio.wait([stop_listen_task()]))
-
+        for task in asyncio.all_tasks(self.__loop):
+            task.cancel()
         self.__loop.stop()
-        
+        time.sleep(1)
         self.__loop.close()
 
     def check_session_exists(self, session_id: str):
@@ -193,6 +184,23 @@ class GameServer:
     def game_factory(self):
         '''Returns a game factory instance.'''
         return self.__game_factory
+
+    @property
+    def sessions_info(self):
+        ''' Returns current games basic info'''
+        list_of_sessions = []
+        for session in self.__sessions.values():
+            session_info = {
+                "session_id": session.session_id,
+                "game_type": session.game_type,
+                "number_of_players": session.number_of_players
+            }
+            config = session.config
+            if config is not None and 'max_player_number' in config:
+                session_info['max_number_of_players'] = config['max_player_number']
+            list_of_sessions.append(session_info)
+        return list_of_sessions
+
 
     async def __send_invalid_session_message(self, websocket: WebSocketClientProtocol, session_id: str):
         '''Helper function which will send to given websocket information about invalid session'''
