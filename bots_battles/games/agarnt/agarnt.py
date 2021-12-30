@@ -69,7 +69,6 @@ class AgarntGame(RealtimeGame):
         current_player = self._players[player_uuid]
         state = self.__get_common_state_part(components_to_update, self.__n_digits)
         if "position" in components_to_update:
-            print('pos')
             state['p'] = {'x': round(current_player.x, self.__n_digits), 'y': round(current_player.y, self.__n_digits), 'r': round(current_player.radius, self.__n_digits)}
             state['ps'] = [{'n': player.player_name, 'x': round(player.x, self.__n_digits), 'y': round(player.y, self.__n_digits), 'r': round(player.radius, self.__n_digits)} for uuid, player in self._players.items() if uuid is not player_uuid]
             state['d'] = 1 if current_player.is_defeated else 0

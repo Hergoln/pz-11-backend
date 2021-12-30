@@ -38,7 +38,7 @@ class CommunicationHandler:
         with self.__incomming_messages_lock:
             for uuidWithMessage in self.__incoming_messages.items():
                 comp = fun(*uuidWithMessage, delta)
-                components_to_update.union(comp)
+                components_to_update = components_to_update.union(comp)
             self.__incoming_messages.clear()
         return components_to_update
 
