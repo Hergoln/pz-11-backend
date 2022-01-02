@@ -26,10 +26,16 @@ class RealtimeGame(Game):
     async def update_game_state(self, components_to_update: Set[str], delta: float):
         '''
         Helper method which can be used to get all players states and pass them to communication handler.
-        '''
+        '''  
         if len(components_to_update) == 0:
             return 
 
+        states = dict() 
+        spectator_state = self.get_state_for_spectator(components_to_update)
+        spectator_state['delta'] = delta
+        for spectator_uuid in self._spectators.keys():
+            states[spectator_uuid] = orjson.dumps(spectator_state).decode("utf-8")
+        await self._communication_handler.handle_game_state(states)
 
         states: Dict[UUID, str] = dict()
         for player_uuid in self._players.keys():
@@ -39,9 +45,4 @@ class RealtimeGame(Game):
         await self._communication_handler.handle_game_state(states)
 
 
-        states = dict()
-        spectator_state = self.get_state_for_spectator(components_to_update)
-        spectator_state['delta'] = delta
-        for spectator_uuid in self._spectators.keys():
-            states[spectator_uuid] = orjson.dumps(spectator_state).decode("utf-8")
-        await self._communication_handler.handle_game_state(states)
+

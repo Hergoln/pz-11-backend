@@ -54,7 +54,7 @@ class AgarntGame(RealtimeGame):
         components.add("food")
         components.add("board")
         components.add("score")
-        player_state = self.get_state_for_player(components, spectator_uuid)
+        player_state = self.get_state_for_spectator(components)
         player_state["delta"] = 0.0
         return orjson.dumps(player_state).decode("utf-8")
         
