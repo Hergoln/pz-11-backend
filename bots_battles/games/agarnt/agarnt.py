@@ -4,6 +4,7 @@ import logging
 import orjson
 from typing import Dict, Set
 from uuid import UUID
+import random
 
 from bots_battles.game_engine.player import Spectator
 
@@ -12,6 +13,7 @@ from .agarnt_game_config import AgarntGameConfig
 from .agarnt_player import AgarntPlayer
 from .board import Board
 from bots_battles.game_engine import RealtimeGame, CommunicationHandler, communication_handler
+from util.math import euclidean_distance
 
 class AgarntGame(RealtimeGame):
     instance_counter = 0
@@ -30,7 +32,8 @@ class AgarntGame(RealtimeGame):
         
 
     def add_player(self, player_uuid: UUID, player_name: str) -> str:
-        self._players[player_uuid] = AgarntPlayer(player_name, player_uuid)
+        x, y = self.__generate_random_position()
+        self._players[player_uuid] = AgarntPlayer(player_name, player_uuid, (x, y))
         
         components = set()
         components.add("position")
@@ -89,4 +92,19 @@ class AgarntGame(RealtimeGame):
 
     def _cleanup(self):
         pass
+
+    def __generate_random_position(self):
+        wrong_position = True
+        while wrong_position:
+            x, y = random.uniform(0, self.__board.max_size[0]), random.uniform(0, self.__board.max_size[1])  
+            wrong_position = False
+            for player in self._players.values():
+                if euclidean_distance(x, player.x, y, player.y) <= player.radius:
+                    wrong_position = True
+                    break
+        return x, y
+
+
+
+
             

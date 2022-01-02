@@ -35,11 +35,14 @@ def games() -> Union[str, Response]:
         
         host = request.host
         content: Dict[str, str] = request.json
+
+        if game_server.check_game_name_exists(content['name']):
+            return jsonify({"message": f"Game with name '{content['name']}' already exists!"}), 406
         
         host = host.split(':')[0]
         session_id = game_server.create_new_session_sync()
         game_config = content['config'] if 'config' in content else None
-        game_server.create_new_game_sync(session_id, content['type'], game_config)
+        game_server.create_new_game_sync(session_id, content['type'], content['name'], game_config)
     
         return jsonify({
             "session_id": session_id
@@ -53,9 +56,17 @@ def check_if_game_exists(session_id: Optional[str]=None) -> Response:
     return json_game_exists_message("Game with given session id exists!", game_type) \
             if result else json_game_exists_message( "Game with given session id does not exist.", "", 404)
 
+@game_bp.route('/games/<session_id>/<name>', methods=['GET'])
+def check_if_name_in_game_exists(session_id: Optional[str], name: Optional[str]) -> Response:
+    result = game_server.check_session_name_exists(session_id, name)
+    return json_player_name_exists_message(f"Player named '{name}' already exists!", 406) \
+         if result else json_player_name_exists_message(f"Player named '{name}' does not exists!")
+
 def json_game_exists_message(message: str, game_type: str, status: int=200):
     return jsonify({
             "message": message,  
             "game_type": game_type
         }), status
-    
+
+def json_player_name_exists_message(message: str, status: int=200):
+    return jsonify({"message": message}), status

@@ -2,7 +2,8 @@ from typing import List
 from website import create_app
 import os
 import logging
-logging.basicConfig(level=logging.DEBUG)
+production = 'PRODUCTION' in os.environ
+logging.basicConfig(level=logging.WARNING if production else logging.DEBUG)
 
 import asyncio
 
@@ -34,7 +35,7 @@ if __name__ == "__main__":
     app = create_app(game_server, game_factory)
 
     try:
-        app.run(debug=True, host="0.0.0.0", port=port, use_reloader=False)
+        app.run(debug=not production, host="0.0.0.0", port=port, use_reloader=False)
     except KeyboardInterrupt:
         logging.info("Keyboard interrupt")
 
