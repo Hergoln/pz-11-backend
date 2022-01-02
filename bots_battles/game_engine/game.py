@@ -1,6 +1,6 @@
 from __future__ import annotations
 import abc
-from typing import Dict
+from typing import Dict, Set
 from uuid import UUID
 
 import orjson
@@ -34,7 +34,7 @@ class Game(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def add_player(self, player_uuid: UUID, player_name: str):
+    def add_player(self, player_uuid: UUID, player_name: str) -> str:
         '''
         Add player to game.
         Parameters:
@@ -44,14 +44,15 @@ class Game(metaclass=abc.ABCMeta):
 
         pass
 
-    def add_spectator(self, spectator_uuid: UUID, spectator_name: str):
+    def add_spectator(self, spectator_uuid: UUID, spectator_name: str) -> str:
         '''
         Add spectator to game.
         Parameters:
         spectator_uuid: Player identificator.
         spectator_name: Spectator name:
         '''
-        self._spectators[spectator_uuid] = Spectator(spectator_uuid, spectator_name)
+        pass
+        
 
     def remove_player(self, player_uuid: UUID):
         '''
@@ -67,33 +68,13 @@ class Game(metaclass=abc.ABCMeta):
 
         self._spectators.pop(spectator_uuid, None)
 
-    async def update_game_state(self, delta: float):
-        '''
-        Helper method which can be used to get all players states and pass them to communication handler.
-        '''
-
-        states: Dict[UUID, str] = dict()
-        for player_uuid in self._players.keys():
-            player_state = self.get_state_for_player(player_uuid)
-            player_state['delta'] = delta
-            states[player_uuid] = orjson.dumps(player_state).decode("utf-8")
-        await self._communication_handler.handle_game_state(states)
-
-
-        states = dict()
-        spectator_state = self.get_state_for_spectator()
-        spectator_state['delta'] = delta
-        for spectator_uuid in self._spectators.keys():
-            states[spectator_uuid] = orjson.dumps(spectator_state).decode("utf-8")
-        await self._communication_handler.handle_game_state(states)
-
     @abc.abstractmethod
-    def get_state_for_player(self, player_uuid: UUID):
+    def get_state_for_player(self, components_to_update: Set[str], player_uuid: UUID):
         '''Returns actual state of game for player with given UUID'''
         pass
 
     @abc.abstractmethod
-    def get_state_for_spectator(self):
+    def get_state_for_spectator(self, components_to_update: Set[str]):
         '''Returns actual state of game for all spectators'''
         pass
 
