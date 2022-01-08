@@ -18,12 +18,10 @@ class AgarntPlayer(Player):
         # same deal here
         return float(np.sqrt(value))
 
-    def __init__(self, player_name: str, uuid: UUID):
-        super().__init__(uuid)
-        self.player_name = player_name
+    def __init__(self, player_name: str, uuid: UUID, position: Tuple[float, float]):
+        super().__init__(uuid, player_name)
         self.radius = 1
-        self.x = 0.0
-        self.y = 0.0
+        self.x, self.y = position
         self.color = None
         self.score = 0
 

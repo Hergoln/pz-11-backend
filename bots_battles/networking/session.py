@@ -28,6 +28,7 @@ class Session:
         self.__players: Dict[UUID, GameClient] = dict()
         self.__game: Game = None
         self.__game_type =  ""
+        self.__game_name = ""
         self.__game_factory = game_factory
         self.__communication_handler = CommunicationHandler(self.send_to)
 
@@ -79,7 +80,8 @@ class Session:
         game_client = GameClient(websocket, self.__communication_handler)
         self.__players[websocket.id] = game_client
 
-        self.__game.add_player(websocket.id, player_name)
+        init_state = self.__game.add_player(websocket.id, player_name)
+        await self.send_to(websocket.id, init_state)
 
         try:
             await game_client.handle_messages()
@@ -97,7 +99,8 @@ class Session:
         game_client = GameClient(websocket, self.__communication_handler)
         self.__players[websocket.id] = game_client
 
-        self.__game.add_spectator(websocket.id, spectator_name)
+        init_state = self.__game.add_spectator(websocket.id, spectator_name)
+        await self.send_to(websocket.id, init_state)
 
         try:
             await game_client.handle_messages()
@@ -106,7 +109,7 @@ class Session:
             self.__players.pop(websocket.id, None)
             logging.info('spectator disconnected')
 
-    async def create_game(self, game_type: str, game_config: GameConfig):
+    async def create_game(self, game_type: str, game_name: str, game_config: GameConfig):
         '''Async method to create game instance.
         If game exists in session instance, runtime execption will be raised
         Parameters:
@@ -118,6 +121,7 @@ class Session:
             raise RuntimeError('Game in this session already exists!')
 
         self.__game_type = game_type
+        self.__game_name = game_name
         self.__game = self.__game_factory.create_game(game_type, self.__communication_handler, game_config)
 
         logging.info(f"create new game in session {self.session_id}, game type {game_type}")
@@ -146,6 +150,9 @@ class Session:
             raise RuntimeError(f'Game in this session (id={self.session_id}) do not exists!')
         return self.__game.is_full()
 
+    def check_player_name_exists(self, name:str):
+        return name in self.__game.player_names
+
     @property
     def session_id(self):
         '''Returns a unique session id.'''
@@ -162,5 +169,9 @@ class Session:
     @property
     def config(self):
         return self.__game.game_config
+
+    @property
+    def game_name(self):
+        return self.__game_name
 
 

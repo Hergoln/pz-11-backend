@@ -95,7 +95,7 @@ class GameServer:
 
         return session.session_id
 
-    async def create_new_game(self, session_id: str, game_type: str, game_config: Optional[str] = None):
+    async def create_new_game(self, session_id: str, game_type: str, game_name: str, game_config: Optional[str] = None):
         '''
         Async method to create game in existing session with given id.
         If game_type will be not defined, runtime error will be raised.
@@ -106,7 +106,7 @@ class GameServer:
         '''
     
         config = self.__game_factory.get_game_config(game_type, game_config) if game_config else None
-        await self.__sessions[session_id].create_game(game_type, config)
+        await self.__sessions[session_id].create_game(game_type, game_name, config)
 
     async def join_to_game(self, websocket: WebSocketClientProtocol, player_name: str, session_id: str, is_spectator):
         '''
@@ -154,13 +154,13 @@ class GameServer:
     
         return asyncio.run_coroutine_threadsafe(self.create_new_session(), self.__loop).result()
 
-    def create_new_game_sync(self, session_id: str, game_type: str, game_config: Optional[str] = None):
+    def create_new_game_sync(self, session_id: str, game_type: str, game_name: str, game_config: Optional[str] = None):
         '''
         Sync version of create_new_game_method.
         It can be used in non asynchronus methods.
         '''
                     
-        future = asyncio.run_coroutine_threadsafe(self.create_new_game(session_id, game_type, game_config), self.__loop)
+        future = asyncio.run_coroutine_threadsafe(self.create_new_game(session_id, game_type, game_name, game_config), self.__loop)
         future.add_done_callback(lambda f: f.result())
 
     def terminate(self):
@@ -173,6 +173,16 @@ class GameServer:
     def check_session_exists(self, session_id: str):
         result = session_id in self.__sessions
         return result, self.__sessions[session_id].game_type if result else None
+
+
+    def check_game_name_exists(self, game_name: str):
+        return any([v.game_name for k, v in self.__sessions.items() if v.game_name == game_name])
+
+    def check_session_name_exists(self, session_id: str, name: str):
+        result, _ = self.check_session_exists(session_id)
+        if result is None:
+            return False
+        return self.__sessions[session_id].check_player_name_exists(name)
 
     @property
     def game_factory(self):
@@ -187,6 +197,7 @@ class GameServer:
             session_info = {
                 "session_id": session.session_id,
                 "game_type": session.game_type,
+                "game_name": session.game_name,
                 "number_of_players": session.number_of_players
             }
             config = session.config
