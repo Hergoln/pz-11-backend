@@ -14,6 +14,7 @@ from ..game_factory import GameFactory
 from ..game_engine import GameConfig
 from .session import Session
 
+
 class GameServer:
     '''
     Class which defines main game server. Handles all connections and process them.
@@ -34,7 +35,7 @@ class GameServer:
         self.__sessions: Dict[str, Session] = dict()
         self.__game_factory = game_factory
 
-    def listen(self, event_loop):
+    def listen(self, event_loop: AbstractEventLoop):
         '''Main function of server, starts a endless loop, listening on url.'''
 
         self.__loop = event_loop
@@ -58,17 +59,19 @@ class GameServer:
             game_type = query['type'][0]
 
             await websocket.send(session_id)
-            await self.create_new_game(session_id, game_type)
+            await self.create_new_game(session_id, game_type, name)
 
         elif '/join_to_game' in path:
             player_name = unquote_plus(query['player_name'][0])
             session_id = unquote_plus(query['session_id'][0])
             is_spectator = (query['is_spectator'][0] == "True") if 'is_spectator' in query else False
+            g_type = self.check_session_exists(session_id)[1]
             
+            await websocket.send(g_type)
+            await asyncio.sleep(0)
             await self.join_to_game(websocket, player_name, session_id, is_spectator)
         elif '/terminate_game' in path:
-            await self.terminate_game(websocket, query['session_id'][0])
-            
+            await self.terminate_game(websocket, query['session_id'][0]) 
 
     def __create_unique_session_id(self):
         '''Creates new, unique session id'''
@@ -174,7 +177,6 @@ class GameServer:
         result = session_id in self.__sessions
         return result, self.__sessions[session_id].game_type if result else None
 
-
     def check_game_name_exists(self, game_name: str):
         return any([v.game_name for k, v in self.__sessions.items() if v.game_name == game_name])
 
@@ -205,7 +207,6 @@ class GameServer:
                 session_info['max_number_of_players'] = config['max_player_number']
             list_of_sessions.append(session_info)
         return list_of_sessions
-
 
     async def __send_invalid_session_message(self, websocket: WebSocketClientProtocol, session_id: str):
         '''Helper function which will send to given websocket information about invalid session'''

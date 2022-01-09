@@ -4,7 +4,6 @@ import uuid
 from flask.wrappers import Response
 from bots_battles import GameFactory, GameServer
 import sys
-from bots_battles.networking import game_server
 from settings import PREFFERED_WS_PORT
 import os
 import urllib
@@ -12,7 +11,8 @@ import asyncio
 
 # this is a pointer to the module object instance itself.
 this = sys.modules[__name__]
-this.game_server = None
+
+game_server:GameServer = None
 
 def init_game_server(game_server: GameServer): this.game_server = game_server
 
@@ -20,12 +20,12 @@ game_bp = Blueprint("game", __name__)
 
 @game_bp.route('/games/types/')
 def game_types() -> Response:
-    return jsonify({ 'game_types': list(this.game_server.
+    return jsonify({ 'game_types': list(game_server.
     game_factory.get_all_games()) })
 
 @game_bp.route('/game_config/<game_type>', methods=['GET'])
 def game_config(game_type: Optional[str]=None) -> Response:
-    game_config = this.game_server.game_factory.get_game_config_as_json(game_type)
+    game_config = game_server.game_factory.get_game_config_as_json(game_type)
     return game_config
 
 @game_bp.route('/games/', methods=['POST', 'GET'])
