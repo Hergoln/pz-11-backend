@@ -164,7 +164,7 @@ class Session:
 
     @property
     def number_of_players(self):
-        return len(self.__players)
+        return self.__game.number_of_players
 
     @property
     def config(self):
