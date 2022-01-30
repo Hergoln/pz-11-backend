@@ -91,6 +91,10 @@ class Game(metaclass=abc.ABCMeta):
     def game_config(self):
         return self._game_config
     
+    @property
+    def number_of_players(self):
+        return len(self._players)
+
     def is_full(self):
         return self._game_config['max_player_number'] <= len(self._players) 
 
