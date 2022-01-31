@@ -109,7 +109,7 @@ class Session:
             self.__players.pop(websocket.id, None)
             logging.info('spectator disconnected')
 
-    async def create_game(self, game_type: str, game_name: str, game_config: GameConfig):
+    async def create_and_run_game(self, game_type: str, game_name: str, game_config: GameConfig):
         '''Async method to create game instance.
         If game exists in session instance, runtime execption will be raised
         Parameters:

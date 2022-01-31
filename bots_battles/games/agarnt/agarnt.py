@@ -29,9 +29,30 @@ class AgarntGame(RealtimeGame):
         self.object_counter = AgarntGame.instance_counter
 
         logging.info(f'create Agarnt game {self.object_counter}')
-        
+        self.__empty_server_timer = 0.0
+        self.__no_players = True
+
+
+
+    async def run(self):
+        delta = 0
+        while not self._is_end():
+            components_to_update = self._communication_handler.handle_incomming_messages(self._game_logic.process_input, delta)
+            delta = await self._clock.tick(self._game_config['fps'])
+            await self.update_game_state(components_to_update, delta)
+
+            if self.__no_players:
+                print(f'{self.object_counter}, {self.__empty_server_timer}, {self.__empty_server_timer >= self._game_config["waiting_time"]}')
+                self.__empty_server_timer += delta
+            else:
+                self.__empty_server_timer = 0
+
+            await self.send_ping(delta)
+            
+        self._cleanup()    
 
     def add_player(self, player_uuid: UUID, player_name: str) -> str:
+        self.__no_players = False
         x, y = self.__generate_random_position()
         self._players[player_uuid] = AgarntPlayer(player_name, player_uuid, (x, y))
         
@@ -40,11 +61,15 @@ class AgarntGame(RealtimeGame):
         components.add("food")
         components.add("board")
         components.add("score")
-        state: Dict[UUID, str] = dict()
+
         player_state = self.get_state_for_player(components, player_uuid)
         player_state["delta"] = 0.0
         return orjson.dumps(player_state).decode("utf-8")
     
+    def remove_player(self, player_uuid: UUID):
+        super().remove_player(player_uuid)
+        if len(self._players) == 0:
+            self.__no_players = True
 
     def add_spectator(self, spectator_uuid: UUID, spectator_name: str) -> str:
         self._spectators[spectator_uuid] = Spectator(spectator_uuid, spectator_name)
@@ -88,7 +113,7 @@ class AgarntGame(RealtimeGame):
 
     def _is_end(self):
         '''Check if game should end.'''
-        return False or self._is_terminated
+        return self._is_terminated or self.__empty_server_timer >= self._game_config["waiting_time"]
 
     def _cleanup(self):
         pass
@@ -103,8 +128,6 @@ class AgarntGame(RealtimeGame):
                     wrong_position = True
                     break
         return x, y
-
-
 
 
             
