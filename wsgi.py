@@ -33,6 +33,7 @@ if __name__ == "__main__":
     game_thread.start()
 
     app = create_app(game_server, game_factory)
+    app.config['STARTING_PATH'] = os.path.dirname(os.path.abspath(__file__))
 
     try:
         app.run(debug=not production, host="0.0.0.0", port=port, use_reloader=False)
