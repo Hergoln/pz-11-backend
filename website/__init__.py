@@ -22,6 +22,7 @@ def create_app(game_server: GameServer, game_factory: GameFactory) -> Flask:
         app.register_blueprint(game_bp)
         
         app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", 'sqlite:///memory.db')
+        app.config['SAVED_STATES'] = 'bots_battles/games/states'
         db.init_app(app)
         app.register_blueprint(db_bp)
 

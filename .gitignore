@@ -42,3 +42,5 @@ cython_debug/
 !.vscode/extensions.json
 *.code-workspace
 .history/
+bots_battles/games/states/*
+!bots_battles/games/states/.init
