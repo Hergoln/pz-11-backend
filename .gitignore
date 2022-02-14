@@ -44,3 +44,4 @@ cython_debug/
 .history/
 bots_battles/games/states/*
 !bots_battles/games/states/.init
+*.db

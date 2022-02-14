@@ -1,27 +1,19 @@
-from flask.blueprints import Blueprint
 from flask_sqlalchemy import SQLAlchemy
-from typing import Optional
-from flask import render_template, jsonify, Blueprint, current_app
+from flask import Blueprint, current_app
 from datetime import datetime, timedelta
+import os
 
 db = SQLAlchemy()
 
 class Game(db.Model):
-    id = db.Column(db.BigInteger, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
-    states_id = db.Column(db.BigInteger)
+    states_file_path = db.Column(db.String)
     type_id = db.Column(db.BigInteger)
 
     def __repr__(self) -> str:
-        return f"Game('{self.id}', '{self.start_date}', '{self.end_date}', '{self.states_id}', '{self.type_id}')"
-
-class GameStates(db.Model):
-    id = db.Column(db.BigInteger, primary_key=True)
-    states_id = db.Column(db.JSON)
-
-    def __repr__(self) -> str:
-        return f"GameStates('{self.id}', '{self.states_id}')"
+        return f"Game('{self.id}', '{self.start_date}', '{self.end_date}', '{self.states_file_path}', '{self.type_id}')"
 
 class GameType(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
@@ -31,6 +23,11 @@ class GameType(db.Model):
         return f"GameType('{self.id}', '{self.type_name}')"
 
 db_bp = Blueprint("db", __name__)
+
+def init_db(app):
+    app.register_blueprint(db_bp)
+    db.init_app(app)
+    db.create_all()
 
 @db_bp.route('/add_game_to_db/')
 def add_game_to_db():
