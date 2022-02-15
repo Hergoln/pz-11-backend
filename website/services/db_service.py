@@ -1,7 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask import Blueprint, current_app
 from datetime import datetime, timedelta
-import os
 
 db = SQLAlchemy()
 
