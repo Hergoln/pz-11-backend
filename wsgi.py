@@ -17,6 +17,7 @@ global game_server
 if __name__ == "__main__":
     port = os.environ.get("PORT", 5000)
     ws_port = os.environ.get("WS_PORT", 2137)
+    
     game_factory = GameFactory(GAMES)
     game_server = GameServer(game_factory, "0.0.0.0", ws_port)
     
@@ -33,7 +34,6 @@ if __name__ == "__main__":
     game_thread.start()
 
     app = create_app(game_server, game_factory)
-    app.config['STARTING_PATH'] = os.path.dirname(os.path.abspath(__file__))
 
     try:
         app.run(debug=not production, host="0.0.0.0", port=port, use_reloader=False)
