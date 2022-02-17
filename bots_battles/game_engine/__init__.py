@@ -8,3 +8,4 @@ from .real_time_game import RealtimeGame
 from .real_time_game_config import RealtimeGameConfig
 from .clock import Clock
 from .player import Player
+from .game_archive import JSONGame

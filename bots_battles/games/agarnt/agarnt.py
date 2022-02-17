@@ -12,7 +12,7 @@ from .agarnt_game_logic import AgarntGameLogic
 from .agarnt_game_config import AgarntGameConfig
 from .agarnt_player import AgarntPlayer
 from .board import Board
-from bots_battles.game_engine import RealtimeGame, CommunicationHandler, communication_handler
+from bots_battles.game_engine import RealtimeGame, CommunicationHandler, communication_handler, JSONGame
 from util.math import euclidean_distance
 
 class AgarntGame(RealtimeGame):
@@ -32,23 +32,25 @@ class AgarntGame(RealtimeGame):
         self.__empty_server_timer = 0.0
         self.__no_players = True
 
-
+        # game_type will be also used for storage directory
+        info = {'game_type':'agarnt'}
+        self.archive_record = JSONGame(info)
 
     async def run(self):
         delta = 0
         while not self._is_end():
             components_to_update = self._communication_handler.handle_incomming_messages(self._game_logic.process_input, delta)
             delta = await self._clock.tick(self._game_config['fps'])
-            await self.update_game_state(components_to_update, delta)
+            await self.update_game_state(components_to_update, round(delta, self.__n_digits))
 
             if self.__no_players:
-                print(f'{self.object_counter}, {self.__empty_server_timer}, {self.__empty_server_timer >= self._game_config["waiting_time"]}')
                 self.__empty_server_timer += delta
             else:
                 self.__empty_server_timer = 0
 
             await self.send_ping(delta)
-            
+
+        self.archive_record.dump_to_archive()
         self._cleanup()    
 
     def add_player(self, player_uuid: UUID, player_name: str) -> str:

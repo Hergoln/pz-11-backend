@@ -1,6 +1,5 @@
+import imp
 import orjson
-import datetime
-import logging
 from uuid import UUID
 from typing import Dict, Set
 from .game_logic import GameLogic
@@ -9,18 +8,7 @@ from .game_logic import GameLogic
 from .game_config import GameConfig 
 from .clock import Clock 
 from .communication_handler import CommunicationHandler
-
-class JSONGame():
-    def __init__(self, info) -> None:
-        self.states = list()
-        self.info = info
-
-    def dump_to_archive(self) -> None:
-        logging.info("dumping to archive")
-        with open(f"agarnt_{datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')}", 'wb', encoding='utf-8') as archive:
-            archive.write(orjson.dumps(self))
-        logging.info("game dumped")
-
+from .game_archive import JSONGame
 
 class RealtimeGame(Game):
     def __init__(self, game_logic: GameLogic, game_config: GameConfig, communication_handler: CommunicationHandler):
@@ -28,7 +16,7 @@ class RealtimeGame(Game):
         self._clock = Clock()
         self._ping_timer = 0.0
 
-        info = {'game_config':game_config.to_json(), 'game_type':'agarnt'}
+        info = {'game_type':'none'}
         self.archive_record = JSONGame(info)
 
     async def run(self):
@@ -39,7 +27,6 @@ class RealtimeGame(Game):
             await self.update_game_state(components_to_update, delta)
             await self.send_ping(delta)
 
-        logging.info("Game stopped")
         self.archive_record.dump_to_archive()
         self._cleanup()
 
