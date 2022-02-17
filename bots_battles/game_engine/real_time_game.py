@@ -66,7 +66,7 @@ class RealtimeGame(Game):
             states[player_uuid] = orjson.dumps(player_state).decode("utf-8")
             archived_states[str(player_uuid)] = player_state
         # save players states changes into archive record
-        #self.archive_record.states.append(archived_states)
+        self.archive_record.states.append(archived_states)
         await self._communication_handler.handle_game_state(states)
 
     async def send_ping(self, delta):
