@@ -13,16 +13,18 @@ def create_app(game_server: GameServer, game_factory: GameFactory) -> Flask:
     })
 
     with app.app_context():
-        
-        from .services import basic_bp, game_bp, db, db_bp
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///memory.db')
+        app.config['STARTING_PATH'] = os.path.dirname(os.path.abspath(__file__))
+        app.config['SAVED_STATES'] = os.environ.get('SAVED_STATES', os.path.join( os.path.dirname(os.path.abspath(__file__)), 'bots_battles', 'games', 'states'))
+
+        from .services import basic_bp, game_bp, init_db, init_states
         import website.services as sv
         sv.init_game_server(game_server)
         
         app.register_blueprint(basic_bp)
         app.register_blueprint(game_bp)
-        
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", 'sqlite:///memory.db')
-        db.init_app(app)
-        app.register_blueprint(db_bp)
+
+        init_states(app)
+        init_db(app)
 
         return app

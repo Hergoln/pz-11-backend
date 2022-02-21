@@ -1,3 +1,4 @@
+import imp
 import orjson
 from uuid import UUID
 from typing import Dict, Set
@@ -7,12 +8,16 @@ from .game_logic import GameLogic
 from .game_config import GameConfig 
 from .clock import Clock 
 from .communication_handler import CommunicationHandler
+from .game_archive import JSONGame
 
 class RealtimeGame(Game):
     def __init__(self, game_logic: GameLogic, game_config: GameConfig, communication_handler: CommunicationHandler):
         super().__init__(game_logic, game_config, communication_handler)
         self._clock = Clock()
         self._ping_timer = 0.0
+
+        info = {'game_type':'none'}
+        self.archive_record = JSONGame(info)
 
     async def run(self):
         delta = 0
@@ -21,6 +26,8 @@ class RealtimeGame(Game):
             delta = await self._clock.tick(self._game_config['fps'])
             await self.update_game_state(components_to_update, delta)
             await self.send_ping(delta)
+
+        self.archive_record.dump_to_archive()
         self._cleanup()
 
         
@@ -39,10 +46,14 @@ class RealtimeGame(Game):
         await self._communication_handler.handle_game_state(states)
 
         states: Dict[UUID, str] = dict()
+        archived_states: Dict(str, str) = dict()
         for player_uuid in self._players.keys():
             player_state = self.get_state_for_player(components_to_update, player_uuid)
             player_state['delta'] = delta
             states[player_uuid] = orjson.dumps(player_state).decode("utf-8")
+            archived_states[str(player_uuid)] = player_state
+        # save players states changes into archive record
+        self.archive_record.states.append(archived_states)
         await self._communication_handler.handle_game_state(states)
 
     async def send_ping(self, delta):

@@ -17,6 +17,7 @@ global game_server
 if __name__ == "__main__":
     port = os.environ.get("PORT", 5000)
     ws_port = os.environ.get("WS_PORT", 2137)
+    
     game_factory = GameFactory(GAMES)
     game_server = GameServer(game_factory, "0.0.0.0", ws_port)
     
