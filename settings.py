@@ -1,14 +1,13 @@
 from pickle import DICT
 from typing import Dict, List, Tuple, Type
-from bots_battles import Game, GameConfig, AgarntGame, AgarntGameConfig
+from bots_battles import Game, GameConfig, AgarntGame, AgarntGameConfig, CheckersGame, CheckersGameConfig
 """This module is a container for every game-related settings
 
     All configurable stuffs should be stored in, e.g., appropriate dictionaries
 """
 GAMES: Dict[str, Tuple[Type[Game], Type[GameConfig]]] = {
             'agarnt': (AgarntGame, AgarntGameConfig),
-            'placeholder #1': None,
-            'placeholder #2': None
+            'Checkers': (CheckersGame, CheckersGameConfig)
             }
 
 """
