@@ -1,11 +1,11 @@
-import logging
-import numpy as np
 from typing import Dict
 from uuid import UUID
+
 from bots_battles.game_engine.game_logic import GameLogic
-from .board import Board
-from .agarnt_player import AgarntPlayer
 from util.math import euclidean_distance
+from .agarnt_player import AgarntPlayer
+from .board import Board
+
 
 class AgarntGameLogic(GameLogic):
     '''
@@ -31,7 +31,7 @@ class AgarntGameLogic(GameLogic):
         player.update_position(message['directions'], self.__board.max_size, delta)
         components_to_update.add("position")
 
-        other_players = [other_uuid for other_uuid in self.__players if other_uuid != player_uuid] 
+        other_players = [other_uuid for other_uuid in self.__players if other_uuid != player_uuid]
         is_collision, first_player = self.is_collision_with_other_players(player, other_players)
         if is_collision:
             components_to_update.add("score")
@@ -53,32 +53,32 @@ class AgarntGameLogic(GameLogic):
         Method to check if current player eaten foods
         and game logic adds to player more points and increases the radius.
         '''
-        foods_to_remove = [f for f in self.__board.foods if euclidean_distance(f[0], player.x, f[1], player.y) <= player.get_radius()] 
+        foods_to_remove = [f for f in self.__board.foods if euclidean_distance(f[0], player.x, f[1], player.y) <= player.get_radius()]
         player.eat_food(len(foods_to_remove))
         for f in foods_to_remove:
             self.__board.foods.remove(f)
         return foods_to_remove
-        
+
     def update_eaten_other_players(self, player, other_players):
         '''
         Method to check if player find other smaller players
         and game logic adds to player points and increases the radius.
         '''
-        
-        players_to_remove = [self.__players[uuid] for uuid in other_players if self.__players[uuid].radius/player.radius < AgarntGameLogic.PLAYER_RADIUS_RATIO
-                                        and euclidean_distance(self.__players[uuid].x, player.x, self.__players[uuid].y, player.y) <= player.radius]
+
+        players_to_remove = [self.__players[uuid] for uuid in other_players if
+                             self.__players[uuid].radius / player.radius < AgarntGameLogic.PLAYER_RADIUS_RATIO and euclidean_distance(self.__players[uuid].x, player.x, self.__players[uuid].y, player.y) <= player.radius]
 
         player.eat_other_players(players_to_remove)
         for p in players_to_remove:
-            p.is_defeated = True # set flag to true if eaten, then use it to send proper state message
-        
+            p.is_defeated = True  # set flag to true if eaten, then use it to send proper state message
+
     def is_collision_with_other_players(self, player, other_players):
         '''
         Method to check if player collides with other bigger players.
         If yes - game logic marks current player as defeated and returns.
         If no - game logic continues.
         '''
-        result = [self.__players[uuid] for uuid in other_players if player.radius/self.__players[uuid].radius < AgarntGameLogic.PLAYER_RADIUS_RATIO
-                    and euclidean_distance(self.__players[uuid].x, player.x, self.__players[uuid].y, player.y) <= player.radius]
+        result = [self.__players[uuid] for uuid in other_players if
+                  player.radius / self.__players[uuid].radius < AgarntGameLogic.PLAYER_RADIUS_RATIO and euclidean_distance(self.__players[uuid].x, player.x, self.__players[uuid].y, player.y) <= player.radius]
         first_player = result[0] if len(result) > 0 else None
         return any(result), first_player

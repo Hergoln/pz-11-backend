@@ -1,19 +1,20 @@
 from __future__ import annotations
-import asyncio
+
 import logging
-import orjson
-from typing import Dict, Set
-from uuid import UUID
 import random
+from typing import Set
+from uuid import UUID
 
+import orjson
+
+from bots_battles.game_engine import RealtimeGame, CommunicationHandler, JSONGame
 from bots_battles.game_engine.player import Spectator
-
-from .agarnt_game_logic import AgarntGameLogic
+from util.math import euclidean_distance
 from .agarnt_game_config import AgarntGameConfig
+from .agarnt_game_logic import AgarntGameLogic
 from .agarnt_player import AgarntPlayer
 from .board import Board
-from bots_battles.game_engine import RealtimeGame, CommunicationHandler, communication_handler, JSONGame
-from util.math import euclidean_distance
+
 
 class AgarntGame(RealtimeGame):
     instance_counter = 0
@@ -33,7 +34,7 @@ class AgarntGame(RealtimeGame):
         self.__no_players = True
 
         # game_type will be also used for storage directory
-        info = {'game_type':'agarnt'}
+        info = {'game_type': 'agarnt'}
         self.archive_record = JSONGame(info)
 
     async def run(self):
@@ -51,13 +52,13 @@ class AgarntGame(RealtimeGame):
             await self.send_ping(delta)
 
         self.archive_record.dump_to_archive()
-        self._cleanup()    
+        self._cleanup()
 
     def add_player(self, player_uuid: UUID, player_name: str) -> str:
         self.__no_players = False
         x, y = self.__generate_random_position()
         self._players[player_uuid] = AgarntPlayer(player_name, player_uuid, (x, y))
-        
+
         components = set()
         components.add("position")
         components.add("food")
@@ -67,7 +68,7 @@ class AgarntGame(RealtimeGame):
         player_state = self.get_state_for_player(components, player_uuid)
         player_state["delta"] = 0.0
         return orjson.dumps(player_state).decode("utf-8")
-    
+
     def remove_player(self, player_uuid: UUID):
         super().remove_player(player_uuid)
         if len(self._players) == 0:
@@ -75,7 +76,7 @@ class AgarntGame(RealtimeGame):
 
     def add_spectator(self, spectator_uuid: UUID, spectator_name: str) -> str:
         self._spectators[spectator_uuid] = Spectator(spectator_uuid, spectator_name)
-                
+
         components = set()
         components.add("position")
         components.add("food")
@@ -84,7 +85,7 @@ class AgarntGame(RealtimeGame):
         player_state = self.get_state_for_spectator(components)
         player_state["delta"] = 0.0
         return orjson.dumps(player_state).decode("utf-8")
-        
+
 
     def __get_common_state_part(self, components_to_update: Set[str], n_digits: int):
         state = dict()
@@ -104,7 +105,7 @@ class AgarntGame(RealtimeGame):
             state['d'] = 1 if current_player.is_defeated else 0
         if "score" in components_to_update:
             state['s'] = current_player.score
-        
+
         return state
 
     def get_state_for_spectator(self, components_to_update: Set[str]):
@@ -123,13 +124,10 @@ class AgarntGame(RealtimeGame):
     def __generate_random_position(self):
         wrong_position = True
         while wrong_position:
-            x, y = random.uniform(0, self.__board.max_size[0]), random.uniform(0, self.__board.max_size[1])  
+            x, y = random.uniform(0, self.__board.max_size[0]), random.uniform(0, self.__board.max_size[1])
             wrong_position = False
             for player in self._players.values():
                 if euclidean_distance(x, player.x, y, player.y) <= player.radius:
                     wrong_position = True
                     break
         return x, y
-
-
-            

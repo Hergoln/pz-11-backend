@@ -1,8 +1,12 @@
 from __future__ import annotations
-from bots_battles.game_engine import Player
-from uuid import UUID 
+
 from typing import Dict, List, Tuple
+from uuid import UUID
+
 import numpy as np
+
+from bots_battles.game_engine import Player
+
 
 class AgarntPlayer(Player):
     MAX_VELOCITY = 20
@@ -11,7 +15,7 @@ class AgarntPlayer(Player):
     def velocity(cls, radius):
         log_value = np.log(radius) + 1
         # conversion to Python's float is necessary because np.log returns np.float64 object which is non-serializable
-        return float(cls.MAX_VELOCITY - max(0, min(log_value, cls.MAX_VELOCITY - 1))) # clamp
+        return float(cls.MAX_VELOCITY - max(0, min(log_value, cls.MAX_VELOCITY - 1)))  # clamp
 
     @classmethod
     def radius_func(cls, value):
@@ -25,20 +29,20 @@ class AgarntPlayer(Player):
         self.color = None
         self.score = 0
 
-    def update_position(self, directions: Dict[str, bool], board_size: Tuple[int, int], delta: float):        
-        if directions['U']: #UP
+    def update_position(self, directions: Dict[str, bool], board_size: Tuple[int, int], delta: float):
+        if directions['U']:  # UP
             self.y += AgarntPlayer.velocity(self.radius) * delta
-        if directions['D']: #DOWN
+        if directions['D']:  # DOWN
             self.y -= AgarntPlayer.velocity(self.radius) * delta
-        if directions['L']: #LEFT
+        if directions['L']:  # LEFT
             self.x -= AgarntPlayer.velocity(self.radius) * delta
-        if directions['R']: #RIGHT
+        if directions['R']:  # RIGHT
             self.x += AgarntPlayer.velocity(self.radius) * delta
 
         self.x = float(np.clip(self.x, 0, board_size[0]))
         self.y = float(np.clip(self.y, 0, board_size[1]))
 
-    
+
     def get_radius(self) -> int:
         return self.radius
 
@@ -54,5 +58,3 @@ class AgarntPlayer(Player):
     def __update_radius(self):
         self.radius = AgarntPlayer.radius_func(self.score)
         self.radius = 1 if self.radius < 1 else self.radius
-
-        
